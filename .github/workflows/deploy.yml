@@ -53,11 +53,16 @@ jobs:
       - name: Drop pull request datasets older than a day
         run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --older-than-hours 24 || true
       - name: Commit the report and the docs
+        # Generated files only, committed on top of the latest main: if another commit landed
+        # while this run was building, its reports are simply replaced, never merged.
         run: |
-          mkdir -p docs/dbt && cp warehouse/target/static_index.html docs/dbt/index.html
+          mkdir -p "$RUNNER_TEMP/out/dbt"
+          cp -r reports "$RUNNER_TEMP/out/" && cp warehouse/target/static_index.html "$RUNNER_TEMP/out/dbt/index.html"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --quiet origin main && git checkout --quiet -B main origin/main
+          rm -rf reports && cp -r "$RUNNER_TEMP/out/reports" reports
+          mkdir -p docs/dbt && cp "$RUNNER_TEMP/out/dbt/index.html" docs/dbt/index.html
           git add reports docs/dbt
-          git commit -m "Deploy ${{ github.run_id }}: cost report and dbt docs" || exit 0
-          git pull --rebase
-          git push
+          git commit -m "Deploy ${{ github.run_id }}: reports and dbt docs" || exit 0
+          git push origin main
