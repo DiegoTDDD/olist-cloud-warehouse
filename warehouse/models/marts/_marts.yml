@@ -1,0 +1,125 @@
+version: 2
+
+# Contracts are enforced: dbt creates each table with these exact columns and types and fails
+# the build if the SQL produces anything else. not_null is enforced by BigQuery itself; primary
+# and foreign keys are declared (BigQuery uses them to plan joins) and tested below.
+
+models:
+  - name: fct_orders
+    description: >
+      One row per order with delivery, payment and satisfaction measures. Integer-range
+      partitioned by purchase month and clustered by customer state and status.
+    constraints:
+      - type: primary_key
+        columns: [order_id]
+        warn_unenforced: false
+    columns:
+      - {name: order_id, data_type: string, constraints: [{type: not_null}], data_tests: [unique]}
+      - name: customer_id
+        data_type: string
+        constraints: [{type: not_null}]
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_customers'), field: customer_id}
+      - {name: customer_unique_id, data_type: string, description: "The person; one person can have several customer_id values"}
+      - {name: customer_state, data_type: string}
+      - {name: status, data_type: string, constraints: [{type: not_null}]}
+      - {name: purchase_date, data_type: date, constraints: [{type: not_null}]}
+      - {name: purchase_month_key, data_type: int64, constraints: [{type: not_null}], description: "YYYYMM; the partition key"}
+      - {name: total_payment_value, data_type: numeric}
+      - {name: max_installments, data_type: int64}
+      - {name: main_payment_type, data_type: string, description: "Payment type with the largest amount"}
+      - {name: item_count, data_type: int64, constraints: [{type: not_null}]}
+      - {name: total_item_price, data_type: numeric}
+      - {name: total_freight, data_type: numeric}
+      - name: review_score
+        data_type: int64
+        description: Latest review (1-5); null if never reviewed
+        data_tests:
+          - accepted_values:
+              arguments: {values: [1, 2, 3, 4, 5], quote: false}
+              config: {where: "review_score is not null"}
+      - {name: delivery_days, data_type: int64, description: "Calendar days from purchase to delivery; null if not delivered"}
+      - {name: delay_days, data_type: int64, description: "Delivery date minus promised date; negative = early"}
+      - {name: is_delayed, data_type: boolean, constraints: [{type: not_null}]}
+
+  - name: fct_order_items
+    description: One row per item sold, with category and seller state. Partitioned like fct_orders.
+    constraints:
+      - type: primary_key
+        columns: [order_id, order_item_id]
+        warn_unenforced: false
+    columns:
+      - {name: order_id, data_type: string, constraints: [{type: not_null}]}
+      - {name: order_item_id, data_type: int64, constraints: [{type: not_null}]}
+      - {name: product_id, data_type: string, constraints: [{type: not_null}]}
+      - {name: category, data_type: string}
+      - {name: seller_id, data_type: string, constraints: [{type: not_null}]}
+      - {name: seller_state, data_type: string}
+      - {name: customer_state, data_type: string}
+      - {name: purchase_month_key, data_type: int64, constraints: [{type: not_null}]}
+      - {name: price, data_type: numeric}
+      - {name: freight_value, data_type: numeric}
+
+  - name: dim_customers
+    constraints: [{type: primary_key, columns: [customer_id], warn_unenforced: false}]
+    columns:
+      - {name: customer_id, data_type: string, constraints: [{type: not_null}], data_tests: [unique]}
+      - {name: customer_unique_id, data_type: string, constraints: [{type: not_null}]}
+      - {name: customer_zip_code_prefix, data_type: string}
+      - {name: customer_city, data_type: string}
+      - {name: customer_state, data_type: string}
+
+  - name: dim_sellers
+    constraints: [{type: primary_key, columns: [seller_id], warn_unenforced: false}]
+    columns:
+      - {name: seller_id, data_type: string, constraints: [{type: not_null}], data_tests: [unique]}
+      - {name: seller_zip_code_prefix, data_type: string}
+      - {name: seller_city, data_type: string}
+      - {name: seller_state, data_type: string}
+
+  - name: dim_products
+    constraints: [{type: primary_key, columns: [product_id], warn_unenforced: false}]
+    columns:
+      - {name: product_id, data_type: string, constraints: [{type: not_null}], data_tests: [unique]}
+      - {name: product_category_name, data_type: string}
+      - {name: category, data_type: string, constraints: [{type: not_null}]}
+      - {name: product_weight_g, data_type: int64}
+      - {name: product_length_cm, data_type: int64}
+      - {name: product_height_cm, data_type: int64}
+      - {name: product_width_cm, data_type: int64}
+      - {name: product_photos_qty, data_type: int64}
+
+  - name: dim_dates
+    constraints: [{type: primary_key, columns: [date_day], warn_unenforced: false}]
+    columns:
+      - {name: date_day, data_type: date, constraints: [{type: not_null}], data_tests: [unique]}
+      - {name: year, data_type: int64}
+      - {name: quarter, data_type: int64}
+      - {name: month, data_type: int64}
+      - {name: month_key, data_type: int64}
+      - {name: day_name, data_type: string}
+      - {name: is_weekend, data_type: boolean}
+
+  - name: mart_delivery_satisfaction
+    description: >
+      Average review and 1-star share by days of delay, for delivered orders. Answers where
+      logistics money pays off: avoiding delays or shortening long ones.
+    columns:
+      - {name: delay_bucket_days, data_type: int64, constraints: [{type: not_null}], data_tests: [unique], description: "-1 = early, 10 = 10 or more"}
+      - {name: delay_bucket, data_type: string}
+      - {name: orders, data_type: int64}
+      - {name: reviewed_orders, data_type: int64}
+      - {name: avg_review_score, data_type: float64}
+      - {name: one_star_share, data_type: float64}
+
+  - name: mart_monthly_kpis
+    description: Orders, GMV, late rate, rating and active customers per purchase month.
+    columns:
+      - {name: purchase_month_key, data_type: int64, constraints: [{type: not_null}], data_tests: [unique]}
+      - {name: orders, data_type: int64}
+      - {name: delivered_orders, data_type: int64}
+      - {name: gross_merchandise_value, data_type: numeric}
+      - {name: late_rate, data_type: float64}
+      - {name: avg_review_score, data_type: float64}
+      - {name: active_customers, data_type: int64}

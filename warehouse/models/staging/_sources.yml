@@ -1,0 +1,54 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      The Olist CSV files as loaded by pipeline/load_raw.py, with explicit schemas
+      (pipeline/contracts.py). A fixed 2016-2018 snapshot: never refreshed, so freshness
+      checks do not apply.
+    schema: raw
+    tables:
+      - name: orders
+        columns:
+          - name: order_id
+            data_tests: [unique, not_null]
+          - name: customer_id
+            data_tests: [not_null]
+      - name: customers
+        columns:
+          - name: customer_id
+            data_tests: [unique, not_null]
+      - name: order_items
+        columns:
+          - name: order_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw', 'orders')
+                    field: order_id
+      - name: order_payments
+        columns:
+          - name: order_id
+            data_tests: [not_null]
+      - name: order_reviews
+        columns:
+          - name: review_score
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [1, 2, 3, 4, 5]
+                    quote: false
+      - name: products
+        columns:
+          - name: product_id
+            data_tests: [unique, not_null]
+      - name: sellers
+        columns:
+          - name: seller_id
+            data_tests: [unique, not_null]
+      - name: product_category_name_translation
+        columns:
+          - name: product_category_name
+            data_tests: [unique, not_null]

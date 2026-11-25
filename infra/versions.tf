@@ -1,0 +1,22 @@
+terraform {
+  required_version = ">= 1.9"
+
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 8.12"
+    }
+  }
+
+  # State: see docs/adr/0005-terraform-state.md.
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
+
+  default_labels = {
+    managed_by = "terraform"
+    repository = "olist-cloud-warehouse"
+  }
+}

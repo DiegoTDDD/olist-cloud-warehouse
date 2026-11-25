@@ -1,0 +1,32 @@
+name: olist
+version: "1.0.0"
+profile: olist
+config-version: 2
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+clean-targets: ["target", "dbt_packages", "logs"]
+
+# Every query dbt sends carries labels (dbt_model, dbt_target...), so its bytes and cost can be
+# read back from INFORMATION_SCHEMA.JOBS per model (scripts/cost_report.py).
+query-comment:
+  comment: "{{ query_comment(node) }}"
+  job-label: true
+
+models:
+  olist:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+      +contract:
+        enforced: true
+      +labels:
+        layer: marts
+
+tests:
+  olist:
+    +store_failures: false
