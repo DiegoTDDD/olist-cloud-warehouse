@@ -38,7 +38,7 @@ way; the bytes read are what scale with data volume.
 | Dataset | Tables | Logical bytes |
 |---|---|---|
 | marts | 8 | 52.87 MB |
-| ops | 2 | 0.00 MB |
+| ops | 2 | 0.01 MB |
 | raw | 8 | 58.91 MB |
 | staging | 7 | 0.00 MB |
 
