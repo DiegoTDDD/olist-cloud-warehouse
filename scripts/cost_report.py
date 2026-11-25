@@ -63,24 +63,32 @@ def saving(partitioned: int, flat: int) -> float | None:
 
 
 def build_costs(client, location: str) -> list[dict]:
+    """Every query of the latest prod `dbt build`, found by its dbt_invocation label (each dbt
+    command has its own, so docs generation and earlier runs are left out)."""
     sql = f"""
-    with last_run as (
-      select max(creation_time) as t
+    with jobs as (
+      select
+        (select value from unnest(labels) where key = 'dbt_invocation') as invocation,
+        (select value from unnest(labels) where key = 'dbt_node') as node,
+        creation_time, total_bytes_processed, total_bytes_billed, total_slot_ms
       from `region-{location}`.INFORMATION_SCHEMA.JOBS_BY_USER
       where (select value from unnest(labels) where key = 'dbt_target') = 'prod'
+        and job_type = 'QUERY' and state = 'DONE'
+        and creation_time > timestamp_sub(current_timestamp(), interval 7 day)
+    ),
+    latest_build as (
+      -- the most recent invocation that built models (docs generate only reads the catalog)
+      select invocation from jobs where node = 'fct_orders' order by creation_time desc limit 1
     )
     select
-      (select value from unnest(labels) where key = 'dbt_node') as node,
-      (select value from unnest(labels) where key = 'dbt_resource') as resource,
+      coalesce(node, 'dbt metadata queries') as node,
       count(*) as jobs,
       sum(coalesce(total_bytes_processed, 0)) as bytes_processed,
       sum(coalesce(total_bytes_billed, 0)) as bytes_billed,
       sum(coalesce(total_slot_ms, 0)) as slot_ms
-    from `region-{location}`.INFORMATION_SCHEMA.JOBS_BY_USER, last_run
-    where (select value from unnest(labels) where key = 'dbt_target') = 'prod'
-      and creation_time > timestamp_sub(last_run.t, interval 30 minute)
-      and job_type = 'QUERY' and state = 'DONE'
-    group by 1, 2
+    from jobs
+    where invocation = (select invocation from latest_build)
+    group by 1
     order by bytes_processed desc
     """
     return [dict(r) for r in client.query(sql).result()]
@@ -145,8 +153,12 @@ def render(report: dict) -> str:
         "| dbt node | Queries | Processed | Billed |",
         "|---|---|---|---|",
     ]
-    lines += [f"| {r['node']} | {r['jobs']} | {mb(r['bytes_processed'])} | {mb(r['bytes_billed'])} |"
-              for r in report["build_by_node"]]  # fmt: skip
+    top, rest = report["build_by_node"][:10], report["build_by_node"][10:]
+    lines += [f"| {r['node']} | {r['jobs']} | {mb(r['bytes_processed'])} | {mb(r['bytes_billed'])} |" for r in top]
+    if rest:
+        processed, billed_bytes = sum(r["bytes_processed"] for r in rest), sum(r["bytes_billed"] for r in rest)
+        jobs = sum(r["jobs"] for r in rest)
+        lines.append(f"| {len(rest)} other models and tests | {jobs} | {mb(processed)} | {mb(billed_bytes)} |")
     lines += [
         "",
         "## Analyst queries: partitioned and clustered vs. unpartitioned",
