@@ -2,13 +2,13 @@
 
 Delivered orders that arrived on time or early: 89,936; late: 6,534 (6.8%).
 
-The rating falls from 4.03 on the promised day to 3.73 one day late, and the 1-star share rises from 8.5% to 13.1%. Most of the damage happens on the first day, so avoiding delays is worth more than shortening long ones.
+Every day of delay costs rating until about 6 days late: from 4.03 on the promised day to 3.73 after one day and 1.81 after 6, while the 1-star share goes from 8.5% to 68.5%. After that the rating stays near 1.67. So money pays off inside the first 6 days of a delay: turning a 3-day delay into a 1-day one recovers rating; turning a 20-day delay into a 12-day one recovers almost none.
 
 | Delivery | Orders | Reviewed | Average rating | 1-star share |
 |---|---|---|---|---|
 | early | 88,644 | 88,163 | 4.29 | 6.6% |
 | on the promised day | 1,292 | 1,280 | 4.03 | 8.5% |
-| 1 days late | 825 | 820 | 3.73 | 13.1% |
+| 1 day late | 825 | 820 | 3.73 | 13.1% |
 | 2 days late | 545 | 536 | 3.18 | 27.4% |
 | 3 days late | 500 | 496 | 2.68 | 42.5% |
 | 4 days late | 453 | 436 | 2.50 | 48.2% |

@@ -18,7 +18,7 @@
     },
     {
       "delay_bucket_days": 1,
-      "delay_bucket": "1 days late",
+      "delay_bucket": "1 day late",
       "orders": 825,
       "reviewed_orders": 820,
       "avg_review_score": 3.73,
