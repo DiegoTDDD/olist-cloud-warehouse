@@ -48,6 +48,8 @@ jobs:
         run: dbt docs generate --static
       - name: Measure cost and storage
         run: python scripts/cost_report.py --project "$GCP_PROJECT"
+      - name: Write the decision report from the marts
+        run: python scripts/decision_report.py --project "$GCP_PROJECT"
       - name: Drop pull request datasets older than a day
         run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --older-than-hours 24 || true
       - name: Commit the report and the docs

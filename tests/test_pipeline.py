@@ -103,3 +103,21 @@ def test_janitor_never_touches_production_datasets():
     found = [("raw", old), ("marts", old), ("ci_pr_7_marts", old), ("ci_pr_7_staging", new), ("ci_pr_70_marts", old)]
     assert to_drop(found, "ci_pr_7", None, now) == ["ci_pr_7_marts", "ci_pr_7_staging"]
     assert to_drop(found, None, 24, now) == ["ci_pr_70_marts", "ci_pr_7_marts"]
+
+
+def test_decision_report_reads_the_first_late_day():
+    from scripts.decision_report import render as decision
+
+    buckets = [
+        {"delay_bucket_days": -1, "delay_bucket": "early", "orders": 80, "reviewed_orders": 79,
+         "avg_review_score": 4.3, "one_star_share": 0.05},
+        {"delay_bucket_days": 0, "delay_bucket": "on the promised day", "orders": 10, "reviewed_orders": 10,
+         "avg_review_score": 4.0, "one_star_share": 0.08},
+        {"delay_bucket_days": 1, "delay_bucket": "1 days late", "orders": 10, "reviewed_orders": 10,
+         "avg_review_score": 3.0, "one_star_share": 0.3},
+    ]  # fmt: skip
+    months = [{"purchase_month_key": 201711, "late_rate": 0.14}, {"purchase_month_key": 201610, "late_rate": 0.9}]
+    md = decision(buckets, months)
+    assert "from 4.00 on the promised day to 3.00 one day late" in md
+    assert "late: 10 (10.0%)" in md
+    assert "14.0% in 201711" in md  # 2016 is outside the full months and ignored
