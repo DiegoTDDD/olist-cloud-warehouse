@@ -22,6 +22,22 @@ resource "google_project_iam_member" "deployer_jobs" {
   member  = google_service_account.deployer.member
 }
 
+# The cost report reads the deployer's own query history from INFORMATION_SCHEMA.JOBS_BY_USER,
+# which needs bigquery.jobs.list. No predefined role grants only that (bigquery.user would also
+# let it create datasets), so a one-permission custom role does.
+resource "google_project_iam_custom_role" "job_lister" {
+  role_id     = "olistJobLister"
+  title       = "List BigQuery jobs"
+  description = "Read job history for cost reporting. Nothing else."
+  permissions = ["bigquery.jobs.list"]
+}
+
+resource "google_project_iam_member" "deployer_job_history" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.job_lister.id
+  member  = google_service_account.deployer.member
+}
+
 # Read-only metadata across the project: the cost report reads table sizes from
 # INFORMATION_SCHEMA.TABLE_STORAGE, which is a project-level view.
 resource "google_project_iam_member" "deployer_metadata" {
