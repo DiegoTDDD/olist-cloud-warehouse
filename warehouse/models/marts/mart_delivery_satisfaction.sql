@@ -17,6 +17,7 @@ select
     case
         when delay_bucket_days = -1 then 'early'
         when delay_bucket_days = 0 then 'on the promised day'
+        when delay_bucket_days = 1 then '1 day late'
         when delay_bucket_days = 10 then '10 or more days late'
         else concat(cast(delay_bucket_days as string), ' days late')
     end as delay_bucket,

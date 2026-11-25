@@ -22,16 +22,22 @@ def render(buckets: list[dict], months: list[dict]) -> str:
     late_orders = sum(b["orders"] for b in late)
     first_late = next(b for b in buckets if b["delay_bucket_days"] == 1)
     promised_day = next(b for b in buckets if b["delay_bucket_days"] == 0)
+    # Where the decline stops: the first late bucket whose rating is within 0.15 of the lowest.
+    floor = min(b["avg_review_score"] for b in late)
+    flat_from = next(b for b in late if b["avg_review_score"] <= floor + 0.15)
     lines = [
         "# Decision: where should logistics money go?",
         "",
         f"Delivered orders that arrived on time or early: {on_time_orders:,}; late: {late_orders:,} "
         f"({late_orders / (on_time_orders + late_orders):.1%}).",
         "",
-        f"The rating falls from {promised_day['avg_review_score']:.2f} on the promised day to "
-        f"{first_late['avg_review_score']:.2f} one day late, and the 1-star share rises from "
-        f"{promised_day['one_star_share']:.1%} to {first_late['one_star_share']:.1%}. Most of the damage happens "
-        "on the first day, so avoiding delays is worth more than shortening long ones.",
+        f"Every day of delay costs rating until about {flat_from['delay_bucket_days']} days late: from "
+        f"{promised_day['avg_review_score']:.2f} on the promised day to {first_late['avg_review_score']:.2f} after "
+        f"one day and {flat_from['avg_review_score']:.2f} after {flat_from['delay_bucket_days']}, while the 1-star "
+        f"share goes from {promised_day['one_star_share']:.1%} to {flat_from['one_star_share']:.1%}. After that "
+        f"the rating stays near {floor:.2f}. So money pays off inside the first "
+        f"{flat_from['delay_bucket_days']} days of a delay: turning a 3-day "
+        "delay into a 1-day one recovers rating; turning a 20-day delay into a 12-day one recovers almost none.",
         "",
         "| Delivery | Orders | Reviewed | Average rating | 1-star share |",
         "|---|---|---|---|---|",

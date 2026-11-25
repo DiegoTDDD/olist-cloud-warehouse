@@ -118,6 +118,6 @@ def test_decision_report_reads_the_first_late_day():
     ]  # fmt: skip
     months = [{"purchase_month_key": 201711, "late_rate": 0.14}, {"purchase_month_key": 201610, "late_rate": 0.9}]
     md = decision(buckets, months)
-    assert "from 4.00 on the promised day to 3.00 one day late" in md
+    assert "from 4.00 on the promised day to 3.00 after one day" in md
     assert "late: 10 (10.0%)" in md
     assert "14.0% in 201711" in md  # 2016 is outside the full months and ignored
