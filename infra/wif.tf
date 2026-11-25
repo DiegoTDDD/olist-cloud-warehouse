@@ -23,7 +23,12 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.event_name"          = "assertion.event_name"
   }
 
-  attribute_condition = "assertion.repository_owner_id == '${var.github_repository_owner_id}' && assertion.repository == '${var.github_repository}'"
+  # Defence in depth: the provider itself only accepts the two token subjects the service
+  # accounts trust, from this repository of this owner. A token from any other repository,
+  # branch, tag or environment is rejected before it can be exchanged.
+  # Written out in full (not interpolated) so static scanners can verify it; the check block
+  # below fails the plan if it ever drifts from var.github_repository.
+  attribute_condition = "(assertion.sub == 'repo:DiegoTDDD/olist-cloud-warehouse:ref:refs/heads/main' || assertion.sub == 'repo:DiegoTDDD/olist-cloud-warehouse:pull_request') && assertion.repository == 'DiegoTDDD/olist-cloud-warehouse' && assertion.repository_owner_id == '183739024'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -44,4 +49,14 @@ resource "google_service_account_iam_member" "pr_builder_from_pull_requests" {
   service_account_id = google_service_account.pr_builder.name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principal://iam.googleapis.com/${local.pool}/subject/repo:${var.github_repository}:pull_request"
+}
+
+check "trust_condition_matches_variables" {
+  assert {
+    condition = strcontains(
+      google_iam_workload_identity_pool_provider.github.attribute_condition,
+      "assertion.repository == '${var.github_repository}' && assertion.repository_owner_id == '${var.github_repository_owner_id}'"
+    )
+    error_message = "The WIF attribute_condition does not match var.github_repository / var.github_repository_owner_id."
+  }
 }

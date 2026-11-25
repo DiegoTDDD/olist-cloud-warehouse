@@ -23,6 +23,7 @@ locals {
 }
 
 resource "google_bigquery_dataset" "layer" {
+  # checkov:skip=CKV_GCP_81:Customer-managed keys need Cloud KMS, which needs billing; the sandbox has none. Data is encrypted at rest with Google-managed keys (docs/adr/0001).
   for_each = local.datasets
 
   dataset_id                  = each.key

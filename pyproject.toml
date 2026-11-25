@@ -1,0 +1,17 @@
+[project]
+name = "olist-cloud-warehouse"
+version = "1.0.0"
+description = "Olist data warehouse on Google BigQuery with Terraform, keyless CI and dbt contracts."
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]

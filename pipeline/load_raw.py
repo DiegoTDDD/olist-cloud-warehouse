@@ -57,9 +57,9 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def expected_hashes(path: Path = HASHES) -> dict[str, str]:
+def expected_hashes(path: Path | None = None) -> dict[str, str]:
     out = {}
-    for line in path.read_text().splitlines():
+    for line in (path or HASHES).read_text().splitlines():
         if line.strip():
             digest, name = line.split()
             out[name] = digest
@@ -195,11 +195,11 @@ def main(argv: list[str] | None = None) -> None:
         print(f"{a.action:4} {a.table:36} {a.rows:>9,} rows", flush=True)
     write_audit(client, args.ops_dataset, run_id, actions)
     refreshed = refresh_expiration(client, args.dataset) + refresh_expiration(client, args.ops_dataset)
-    print(json.dumps({"run_id": run_id, "loaded": sum(a.action == "load" for a in actions),
-                      "skipped": sum(a.action == "skip" for a in actions), "expiration_refreshed": refreshed}))  # fmt: skip
+    loaded = sum(a.action == "load" for a in actions)
+    print(json.dumps({"run_id": run_id, "loaded": loaded, "skipped": len(actions) - loaded,
+                      "expiration_refreshed": refreshed}))  # fmt: skip
     sys.stdout.flush()
 
 
 if __name__ == "__main__":
     main()
-
