@@ -1,0 +1,61 @@
+name: deploy
+
+# main: load raw (only what changed), build and test every model, measure cost, publish the
+# report. Weekly as well, because the sandbox deletes anything older than 60 days.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "reports/**"]
+  schedule:
+    - cron: "17 9 * * 1" # Mondays 06:17 in Sao Paulo
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit reports/
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT: ${{ vars.GCP_PROJECT }}
+      DBT_TARGET: prod
+      DBT_PROFILES_DIR: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.DEPLOYER_SA }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Download the source files and check their SHA-256 hashes
+        run: bash scripts/download_data.sh
+      - name: Load raw (skips tables that already hold the same file)
+        run: python -m pipeline.load_raw --project "$GCP_PROJECT"
+      - name: dbt build (models, contracts and tests)
+        working-directory: warehouse
+        run: dbt build --fail-fast
+      - name: Generate dbt docs (lineage and column documentation)
+        working-directory: warehouse
+        run: dbt docs generate --static
+      - name: Measure cost and storage
+        run: python scripts/cost_report.py --project "$GCP_PROJECT"
+      - name: Drop pull request datasets older than a day
+        run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --older-than-hours 24 || true
+      - name: Commit the report and the docs
+        run: |
+          mkdir -p docs/dbt && cp warehouse/target/static_index.html docs/dbt/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports docs/dbt
+          git commit -m "Deploy ${{ github.run_id }}: cost report and dbt docs" || exit 0
+          git pull --rebase
+          git push

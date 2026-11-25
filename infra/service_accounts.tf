@@ -22,6 +22,14 @@ resource "google_project_iam_member" "deployer_jobs" {
   member  = google_service_account.deployer.member
 }
 
+# Read-only metadata across the project: the cost report reads table sizes from
+# INFORMATION_SCHEMA.TABLE_STORAGE, which is a project-level view.
+resource "google_project_iam_member" "deployer_metadata" {
+  project = var.project_id
+  role    = "roles/bigquery.metadataViewer"
+  member  = google_service_account.deployer.member
+}
+
 resource "google_project_iam_member" "pr_builder_user" {
   project = var.project_id
   role    = "roles/bigquery.user"

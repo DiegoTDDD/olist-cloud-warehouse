@@ -1,0 +1,43 @@
+name: pr-build
+
+# Every pull request builds and tests the whole warehouse in BigQuery, in its own throwaway
+# datasets (ci_pr_<number>_staging, ci_pr_<number>_marts), as the pr-builder service account.
+# That account authenticates keylessly and can read raw but cannot write any production dataset.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write # the OIDC token exchanged through Workload Identity Federation
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Forks get no OIDC token for this repository, and the trust condition rejects them anyway.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT: ${{ vars.GCP_PROJECT }}
+      DBT_TARGET: ci
+      DBT_PROFILES_DIR: .
+      CI_DATASET_PREFIX: ci_pr_${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.PR_BUILDER_SA }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: dbt build (models, contracts and tests) into ci_pr_${{ github.event.pull_request.number }}_*
+        working-directory: warehouse
+        run: dbt build --fail-fast
+      - name: Drop this pull request's datasets
+        if: always()
+        run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --prefix "$CI_DATASET_PREFIX"

@@ -1,0 +1,49 @@
+name: ci
+
+# Static checks that need no cloud access: they run on every push and pull request, forks included.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Lint
+        run: ruff check . && ruff format --check .
+      - name: Unit tests (loader plan, raw contracts, billing rules, janitor safety)
+        run: pytest -q
+      - name: dbt parses, every model and test compiles against the declared contracts
+        working-directory: warehouse
+        env:
+          GCP_PROJECT: ci-parse-only
+          DBT_PROFILES_DIR: .
+        run: dbt parse --no-partial-parse
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+      - name: Security scan (checkov)
+        run: |
+          pip install checkov==3.4.11
+          checkov -d . --framework terraform --quiet --compact --skip-download
