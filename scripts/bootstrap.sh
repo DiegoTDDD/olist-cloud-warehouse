@@ -8,6 +8,23 @@ set -euo pipefail
 cd "$(dirname "$0")/../infra"
 project="$(gcloud config get project 2>/dev/null)"
 echo "project: $project"
+if ! gcloud auth print-access-token >/dev/null 2>&1; then
+  echo "Cloud Shell is not authorized yet: click 'Authorize' in the Cloud Shell prompt, then run again."
+  exit 1
+fi
+
+# Cloud Shell no longer ships Terraform: install a pinned release into ~/bin, checked against
+# HashiCorp's published SHA-256 sums.
+tf_version=1.17.2
+if ! command -v terraform >/dev/null || ! terraform version | grep -q "v${tf_version}"; then
+  tmp="$(mktemp -d)"
+  base="https://releases.hashicorp.com/terraform/${tf_version}"
+  curl -fsSL -o "$tmp/tf.zip" "$base/terraform_${tf_version}_linux_amd64.zip"
+  curl -fsSL -o "$tmp/sums" "$base/terraform_${tf_version}_SHA256SUMS"
+  (cd "$tmp" && grep "linux_amd64.zip" sums | sed "s/terraform_${tf_version}_linux_amd64.zip/tf.zip/" | sha256sum --check --strict)
+  mkdir -p "$HOME/bin" && unzip -o -q "$tmp/tf.zip" -d "$HOME/bin" && rm -rf "$tmp"
+  export PATH="$HOME/bin:$PATH"
+fi
 terraform version | head -1
 
 # Is Cloud Storage available without billing? If so, keep Terraform state there (ADR 0005).
