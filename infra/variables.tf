@@ -21,6 +21,12 @@ variable "github_repository_owner_id" {
   default     = "183739024"
 }
 
+variable "github_repository_id" {
+  description = "Numeric GitHub id of the repository. GitHub's OIDC subject embeds it, so a deleted and re-created repository with the same name gets a different subject."
+  type        = string
+  default     = "1472254812"
+}
+
 variable "analyst_members" {
   description = "IAM members (user:, group:) allowed to read the marts. They see nothing in raw or staging."
   type        = list(string)
