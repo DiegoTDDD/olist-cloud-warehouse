@@ -10,7 +10,7 @@ Writes reports/cost.json and reports/cost.md, and appends one row per run to ops
 2. Queries: typical analyst questions run twice, on marts.fct_orders (partitioned by month,
    clustered by state and status) and on an unpartitioned copy made for this report, with the
    query cache off. The bytes each one reads are the measured effect of the table design.
-3. Storage: logical bytes per dataset from INFORMATION_SCHEMA.TABLE_STORAGE, against the
+3. Storage: logical bytes per dataset from each dataset's __TABLES__ metadata, against the
    sandbox's 10 GiB lifetime allowance.
 
 Money is bytes times the on-demand list price (ON_DEMAND_USD_PER_TIB); the sandbox itself
@@ -32,6 +32,7 @@ MB = 1024**2
 ON_DEMAND_USD_PER_TIB = 6.25  # list price, https://cloud.google.com/bigquery/pricing (Nov 2026)
 MIN_BILLED_BYTES = 10 * MB
 SANDBOX_STORAGE_BYTES = 10 * 1024**3
+DATASETS = ("raw", "staging", "marts", "ops")
 
 # (name, question, SQL with {table}). Filters mirror what the marts are designed for.
 BENCHMARK = [
@@ -114,13 +115,15 @@ def benchmark(client) -> list[dict]:
 
 
 def storage(client, location: str) -> list[dict]:
-    sql = f"""
-    select table_schema as dataset, count(*) as tables, sum(total_logical_bytes) as logical_bytes
-    from `region-{location}`.INFORMATION_SCHEMA.TABLE_STORAGE
-    where project_id = '{client.project}' and not deleted
-    group by 1 order by 1
-    """
-    return [dict(r) for r in client.query(sql).result()]
+    """Logical bytes per dataset. INFORMATION_SCHEMA.TABLE_STORAGE is not enabled for new sandbox
+    projects, so this reads each dataset's __TABLES__ metadata table, which always is."""
+    del location  # __TABLES__ is per dataset, not per region
+    parts = [
+        f"select '{d}' as dataset, count(*) as tables, coalesce(sum(size_bytes), 0) as logical_bytes "
+        f"from `{client.project}.{d}.__TABLES__`"
+        for d in DATASETS
+    ]
+    return [dict(r) for r in client.query(" union all ".join(parts) + " order by dataset").result()]
 
 
 def render(report: dict) -> str:
