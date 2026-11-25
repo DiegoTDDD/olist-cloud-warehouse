@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Entry point for "Open in Cloud Shell": `bash bootstrap` runs the one-time setup.
+exec bash "$(dirname "$0")/scripts/bootstrap.sh" "$@"
