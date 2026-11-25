@@ -1,4 +1,2 @@
 pytest==9.2.0
 ruff==0.17.6
-checkov==3.4.11
-sqlfluff==4.5.0
