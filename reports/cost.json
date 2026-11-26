@@ -1,11 +1,11 @@
 {
-  "run_at": "2026-11-25T22:22:53+00:00",
+  "run_at": "2026-11-26T02:37:29+00:00",
   "price_usd_per_tib": 6.25,
   "build": {
     "jobs": 74,
     "bytes_processed": 170172848,
     "bytes_billed": 660602880,
-    "slot_ms": 25922
+    "slot_ms": 24428
   },
   "build_by_node": [
     {
@@ -13,63 +13,63 @@
       "jobs": 3,
       "bytes_processed": 42023762,
       "bytes_billed": 52428800,
-      "slot_ms": 10829
+      "slot_ms": 10781
     },
     {
       "node": "fct_order_items",
       "jobs": 3,
       "bytes_processed": 22359620,
       "bytes_billed": 52428800,
-      "slot_ms": 7867
+      "slot_ms": 6796
     },
     {
       "node": "dim_customers",
       "jobs": 3,
       "bytes_processed": 9083385,
       "bytes_billed": 10485760,
-      "slot_ms": 1282
+      "slot_ms": 1260
     },
     {
       "node": "mart_monthly_kpis",
       "jobs": 3,
       "bytes_processed": 7748592,
       "bytes_billed": 10485760,
-      "slot_ms": 951
+      "slot_ms": 839
     },
     {
       "node": "source_relationships_raw_order_items_order_id__order_id__source",
       "jobs": 1,
       "bytes_processed": 7211094,
       "bytes_billed": 20971520,
-      "slot_ms": 120
+      "slot_ms": 115
     },
     {
       "node": "relationships_fct_orders_customer_id__customer_id__ref_dim_cust",
       "jobs": 1,
       "bytes_processed": 6761988,
       "bytes_billed": 20971520,
-      "slot_ms": 206
+      "slot_ms": 296
     },
     {
       "node": "assert_amounts_not_negative",
       "jobs": 1,
       "bytes_processed": 5543824,
       "bytes_billed": 10485760,
-      "slot_ms": 154
+      "slot_ms": 145
     },
     {
       "node": "assert_money_reconciles",
       "jobs": 1,
       "bytes_processed": 5077784,
       "bytes_billed": 20971520,
-      "slot_ms": 259
+      "slot_ms": 218
     },
     {
       "node": "source_not_null_raw_order_items_order_id",
       "jobs": 1,
       "bytes_processed": 3830100,
       "bytes_billed": 10485760,
-      "slot_ms": 1
+      "slot_ms": 3
     },
     {
       "node": "source_not_null_raw_order_payments_order_id",
@@ -83,14 +83,14 @@
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 1
+      "slot_ms": 2
     },
     {
       "node": "source_not_null_raw_orders_customer_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 3
+      "slot_ms": 2
     },
     {
       "node": "source_not_null_raw_orders_order_id",
@@ -104,14 +104,14 @@
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 114
+      "slot_ms": 100
     },
     {
       "node": "source_unique_raw_orders_order_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 102
+      "slot_ms": 110
     },
     {
       "node": "not_null_stg_customers_customer_id",
@@ -125,56 +125,56 @@
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 75
+      "slot_ms": 87
     },
     {
       "node": "not_null_stg_orders_order_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 2
+      "slot_ms": 3
     },
     {
       "node": "unique_stg_orders_order_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 107
+      "slot_ms": 85
     },
     {
       "node": "unique_dim_customers_customer_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 102
+      "slot_ms": 140
     },
     {
       "node": "unique_fct_orders_order_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 272
+      "slot_ms": 250
     },
     {
       "node": "dim_products",
       "jobs": 3,
       "bytes_processed": 2984520,
       "bytes_billed": 20971520,
-      "slot_ms": 903
+      "slot_ms": 771
     },
     {
       "node": "mart_delivery_satisfaction",
       "jobs": 3,
       "bytes_processed": 2653325,
       "bytes_billed": 10485760,
-      "slot_ms": 715
+      "slot_ms": 726
     },
     {
       "node": "assert_delivered_orders_have_a_delivery_date",
       "jobs": 1,
       "bytes_processed": 1864013,
       "bytes_billed": 10485760,
-      "slot_ms": 13
+      "slot_ms": 18
     },
     {
       "node": "not_null_stg_products_product_id",
@@ -188,21 +188,21 @@
       "jobs": 1,
       "bytes_processed": 1670141,
       "bytes_billed": 20971520,
-      "slot_ms": 38
+      "slot_ms": 48
     },
     {
       "node": "source_not_null_raw_products_product_id",
       "jobs": 1,
       "bytes_processed": 1120334,
       "bytes_billed": 10485760,
-      "slot_ms": 2
+      "slot_ms": 151
     },
     {
       "node": "source_unique_raw_products_product_id",
       "jobs": 1,
       "bytes_processed": 1120334,
       "bytes_billed": 10485760,
-      "slot_ms": 37
+      "slot_ms": 48
     },
     {
       "node": "unique_dim_products_product_id",
@@ -223,7 +223,7 @@
       "jobs": 1,
       "bytes_processed": 871249,
       "bytes_billed": 10485760,
-      "slot_ms": 89
+      "slot_ms": 99
     },
     {
       "node": "source_accepted_values_raw_order_reviews_review_score__false__1",
@@ -237,28 +237,28 @@
       "jobs": 1,
       "bytes_processed": 793792,
       "bytes_billed": 10485760,
-      "slot_ms": 2
+      "slot_ms": 3
     },
     {
       "node": "accepted_values_fct_orders_review_score__false__1__2__3__4__5",
       "jobs": 1,
       "bytes_processed": 789328,
       "bytes_billed": 10485760,
-      "slot_ms": 95
+      "slot_ms": 111
     },
     {
       "node": "not_null_stg_products_category",
       "jobs": 1,
       "bytes_processed": 551090,
       "bytes_billed": 20971520,
-      "slot_ms": 9
+      "slot_ms": 11
     },
     {
       "node": "dim_sellers",
       "jobs": 3,
       "bytes_processed": 176935,
       "bytes_billed": 10485760,
-      "slot_ms": 512
+      "slot_ms": 428
     },
     {
       "node": "source_not_null_raw_sellers_seller_id",
@@ -272,35 +272,35 @@
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 8
+      "slot_ms": 13
     },
     {
       "node": "not_null_stg_sellers_seller_id",
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 3
+      "slot_ms": 2
     },
     {
       "node": "unique_stg_sellers_seller_id",
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 8
+      "slot_ms": 12
     },
     {
       "node": "unique_dim_sellers_seller_id",
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 10
+      "slot_ms": 11
     },
     {
       "node": "unique_dim_dates_date_day",
       "jobs": 1,
       "bytes_processed": 8768,
       "bytes_billed": 10485760,
-      "slot_ms": 5
+      "slot_ms": 8
     },
     {
       "node": "source_not_null_raw_product_category_name_translation_product_c",
@@ -314,35 +314,35 @@
       "jobs": 1,
       "bytes_processed": 1347,
       "bytes_billed": 10485760,
-      "slot_ms": 7
+      "slot_ms": 8
     },
     {
       "node": "unique_mart_monthly_kpis_purchase_month_key",
       "jobs": 1,
       "bytes_processed": 200,
       "bytes_billed": 10485760,
-      "slot_ms": 5
+      "slot_ms": 9
     },
     {
       "node": "assert_kpis_cover_every_order",
       "jobs": 1,
       "bytes_processed": 200,
       "bytes_billed": 20971520,
-      "slot_ms": 69
+      "slot_ms": 78
     },
     {
       "node": "unique_mart_delivery_satisfaction_delay_bucket_days",
       "jobs": 1,
       "bytes_processed": 96,
       "bytes_billed": 10485760,
-      "slot_ms": 6
+      "slot_ms": 9
     },
     {
       "node": "dim_dates",
       "jobs": 3,
       "bytes_processed": 0,
       "bytes_billed": 0,
-      "slot_ms": 717
+      "slot_ms": 403
     },
     {
       "node": "stg_order_items",
@@ -352,14 +352,14 @@
       "slot_ms": 0
     },
     {
-      "node": "stg_order_payments",
+      "node": "stg_order_reviews",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
       "slot_ms": 0
     },
     {
-      "node": "stg_order_reviews",
+      "node": "stg_order_payments",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
@@ -398,14 +398,7 @@
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
-      "slot_ms": 79
-    },
-    {
-      "node": "assert_one_fact_row_per_order",
-      "jobs": 1,
-      "bytes_processed": 0,
-      "bytes_billed": 0,
-      "slot_ms": 83
+      "slot_ms": 96
     },
     {
       "node": "assert_partitions_hold_every_month",
@@ -413,6 +406,13 @@
       "bytes_processed": 0,
       "bytes_billed": 0,
       "slot_ms": 1
+    },
+    {
+      "node": "assert_one_fact_row_per_order",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 73
     }
   ],
   "benchmark": [
@@ -454,7 +454,7 @@
     {
       "dataset": "ops",
       "tables": 2,
-      "logical_bytes": 9831
+      "logical_bytes": 11541
     },
     {
       "dataset": "raw",
@@ -467,6 +467,6 @@
       "logical_bytes": 0
     }
   ],
-  "storage_bytes": 117221214,
-  "storage_share_of_sandbox": 0.010917076282203198
+  "storage_bytes": 117222924,
+  "storage_share_of_sandbox": 0.010917235538363457
 }

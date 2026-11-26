@@ -1,4 +1,4 @@
-# Cost report (2026-11-25)
+# Cost report (2026-11-26)
 
 Prices: on-demand list price of $6.25/TiB. The project runs in the BigQuery sandbox,
 so it is billed nothing; the dollars are what the same work would cost on demand.
