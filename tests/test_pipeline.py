@@ -1,5 +1,6 @@
 import datetime as dt
 import hashlib
+import json
 from pathlib import Path
 
 import pytest
@@ -121,3 +122,19 @@ def test_decision_report_reads_the_first_late_day():
     assert "from 4.00 on the promised day to 3.00 after one day" in md
     assert "late: 10 (10.0%)" in md
     assert "14.0% in 201711" in md  # 2016 is outside the full months and ignored
+
+
+def test_project_page_matches_the_reports_and_the_decision_rule():
+    from scripts import build_site, decision_report
+
+    cost = json.loads((ROOT / "reports" / "cost.json").read_text())
+    decision = json.loads((ROOT / "reports" / "decision.json").read_text())
+    counts = build_site.dbt_counts((ROOT / "docs" / "dbt" / "index.html").read_text())
+    page = build_site.render(cost, decision, counts)
+    turn = build_site.flat_from(decision["buckets"])["delay_bucket_days"]
+    # the page and decision.md must name the same day where the rating stops falling
+    assert f"until about {turn} days late" in decision_report.render(decision["buckets"], decision["months"])
+    assert f"until day {turn}</h2>" in page
+    assert counts["model"] == len(list((ROOT / "warehouse" / "models").rglob("*.sql")))
+    assert f"{counts['test']} tests" in page
+    assert page.count("<tr class=") == len(decision["buckets"])

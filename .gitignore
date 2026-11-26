@@ -11,3 +11,4 @@ warehouse/dbt_packages/
 *.tfvars
 !*.tfvars.example
 crash.log
+_site/

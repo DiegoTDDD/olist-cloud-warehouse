@@ -1,0 +1,51 @@
+name: pages
+
+# Publishes the project page and the dbt docs to https://diegotddd.github.io/olist-cloud-warehouse/
+# After every deploy (its report commit is pushed with the workflow token, which starts no push
+# workflows, hence workflow_run), and on any push to main that changes the page or its inputs.
+on:
+  workflow_run:
+    workflows: [deploy]
+    types: [completed]
+    branches: [main]
+  push:
+    branches: [main]
+    paths: ["scripts/build_site.py", "reports/**", "docs/dbt/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main # the report commit the deploy just pushed
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build the page from the latest reports (standard library only)
+        run: python scripts/build_site.py --out _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - id: pages
+        uses: actions/deploy-pages@v4

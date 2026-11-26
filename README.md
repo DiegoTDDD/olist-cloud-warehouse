@@ -3,6 +3,10 @@
 [![deploy](https://github.com/DiegoTDDD/olist-cloud-warehouse/actions/workflows/deploy.yml/badge.svg)](https://github.com/DiegoTDDD/olist-cloud-warehouse/actions/workflows/deploy.yml)
 [![ci](https://github.com/DiegoTDDD/olist-cloud-warehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/DiegoTDDD/olist-cloud-warehouse/actions/workflows/ci.yml)
 
+**Project page: [diegotddd.github.io/olist-cloud-warehouse](https://diegotddd.github.io/olist-cloud-warehouse/)**
+(the decision, the cost and the architecture, rebuilt after every deploy) and the
+[dbt docs](https://diegotddd.github.io/olist-cloud-warehouse/dbt/) (every model, column and its lineage).
+
 A data warehouse for the Olist marketplace (99,441 orders, Brazil, 2016 to 2018) running in
 Google BigQuery, built so that it costs nothing and could still be handed to a production
 team: infrastructure as code, keyless CI, contracts on every table, tests on every build,
