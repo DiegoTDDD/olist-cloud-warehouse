@@ -5,12 +5,12 @@ so it is billed nothing; the dollars are what the same work would cost on demand
 
 ## Build (latest prod dbt run)
 
-76 queries processed 109.30 MB and would bill 640.00 MB ($0.0038 per build).
+80 queries processed 110.04 MB and would bill 660.00 MB ($0.0039 per build).
 
 | dbt node | Queries | Processed | Billed |
 |---|---|---|---|
-| fct_orders | 3 | 23.62 MB | 50.00 MB |
-| fct_order_items | 3 | 11.03 MB | 50.00 MB |
+| fct_orders | 5 | 23.97 MB | 60.00 MB |
+| fct_order_items | 5 | 11.42 MB | 60.00 MB |
 | assert_raw_one_version_per_batch | 1 | 9.67 MB | 40.00 MB |
 | dim_customers | 3 | 8.66 MB | 10.00 MB |
 | relationships_fct_orders_customer_id__customer_id__ref_dim_cust | 1 | 4.70 MB | 20.00 MB |
@@ -38,7 +38,7 @@ way; the bytes read are what scale with data volume.
 | Dataset | Tables | Logical bytes |
 |---|---|---|
 | marts | 8 | 31.39 MB |
-| ops | 2 | 0.01 MB |
+| ops | 2 | 0.02 MB |
 | raw | 8 | 37.43 MB |
 | staging | 7 | 0.00 MB |
 
