@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "https://github.com/DiegoTDDD/olist-cloud-warehouse"
 PAGE = "https://diegotddd.github.io/olist-cloud-warehouse/"
-PORTFOLIO = "https://diegotddd.github.io/"
+PORTFOLIO = "https://diegoalves.vercel.app/"
 MB = 1024**2
 TIB = 1024**4
 SANDBOX_BYTES = 10 * 1024**3
