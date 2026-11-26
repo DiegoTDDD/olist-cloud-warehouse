@@ -36,6 +36,7 @@ ADRS = [
     ("0003-raw-contracts.md", "Explicit schemas for raw, enforced contracts for marts"),
     ("0004-partitioning.md", "Integer-range partitions by month, clustered by state and status"),
     ("0005-terraform-state.md", "Terraform state stays with the one person who applies it"),
+    ("0006-daily-replay-and-incremental-models.md", "Daily change feed and incremental marts without DML"),
 ]
 
 FAVICON = (
@@ -67,7 +68,13 @@ def pct(x: float) -> str:
     return f"{x:.0%}"
 
 
-def decision_section(buckets: list[dict]) -> str:
+def decision_section(buckets: list[dict], as_of: str | None = None) -> str:
+    as_of_note = (
+        f", with data as of {as_of}: the history is replayed one day per real day, so the numbers move as "
+        "deliveries and reviews arrive"
+        if as_of
+        else ""
+    )
     on_time = sum(b["orders"] for b in buckets if b["delay_bucket_days"] <= 0)
     late = sum(b["orders"] for b in buckets if b["delay_bucket_days"] > 0)
     day0 = next(b for b in buckets if b["delay_bucket_days"] == 0)
@@ -109,8 +116,8 @@ def decision_section(buckets: list[dict]) -> str:
     <tbody>{"".join(rows)}</tbody>
   </table>
   </div>
-  <p class="note">Rebuilt on every deploy from <code>marts.mart_delivery_satisfaction</code>. Correlation in
-  observational data: late orders may differ in other ways.</p>
+  <p class="note">Rebuilt on every deploy from <code>marts.mart_delivery_satisfaction</code>{as_of_note}.
+  Correlation in observational data: late orders may differ in other ways.</p>
 </section>"""
 
 
@@ -140,8 +147,8 @@ def cost_section(cost: dict, counts: dict[str, int]) -> str:
 <section id="cost" aria-labelledby="cost-h">
   <h2 id="cost-h">What it costs, measured on the latest deploy</h2>
   <dl class="facts">
-    <div><dt>US$ {build_usd:.4f}</dt><dd>per full build: {b["jobs"]} queries reading {mb(b["bytes_processed"])},
-    at the on-demand list price. The sandbox bills nothing.</dd></div>
+    <div><dt>US$ {build_usd:.4f}</dt><dd>for the latest daily build: {b["jobs"]} queries reading
+    {mb(b["bytes_processed"])}, at the on-demand list price. The sandbox bills nothing.</dd></div>
     <div><dt>{storage_share:.1%}</dt><dd>of the sandbox's 10 GiB lifetime storage: {mb(cost["storage_bytes"])}
     across raw, staging, marts and ops.</dd></div>
     <div><dt>{counts["test"]} tests</dt><dd>on {counts["model"]} dbt models with enforced contracts, run on
@@ -160,7 +167,7 @@ ARCH = """
 <section id="how" aria-labelledby="how-h">
   <h2 id="how-h">How it runs</h2>
   <ol class="flow">
-    <li><strong>GitHub Actions</strong><span>a push, a pull request, or the Monday schedule</span></li>
+    <li><strong>GitHub Actions</strong><span>a push, a pull request, or the daily schedule</span></li>
     <li><strong>Workload Identity Federation</strong><span>GitHub's signed token is exchanged for a Google
     token that lasts one hour. No key is stored anywhere, and only this repository, by its numeric id,
     is accepted.</span></li>
@@ -170,21 +177,27 @@ ARCH = """
       <span class="layers"><b>raw</b><b>staging</b><b>marts</b><b>ops</b></span></li>
   </ol>
   <dl class="layer-list">
-    <div><dt>raw</dt><dd>The CSV files with declared schemas. Each file's SHA-256 is checked, unchanged files
-    are not reloaded, and row counts are reconciled.</dd></div>
-    <div><dt>staging</dt><dd>dbt views: renames, casts, category translation.</dd></div>
-    <div><dt>marts</dt><dd>Star schema and decision marts. Fact tables partitioned by month and clustered by
-    state and status.</dd></div>
+    <div><dt>raw</dt><dd>A daily change feed: the Olist history replayed one day per real day, so orders
+    arrive, get delivered and get reviewed on different days. One partition per batch, replaced by a load
+    job, so reruns and catch-ups are idempotent. Every source file's SHA-256 is checked.</dd></div>
+    <div><dt>staging</dt><dd>dbt views: the latest version of each record, renames, casts, category
+    translation.</dd></div>
+    <div><dt>marts</dt><dd>Star schema and decision marts. The fact tables are incremental: each day only the
+    purchase months with a changed order are rebuilt and swapped in with copy jobs (the sandbox has no
+    MERGE).</dd></div>
     <div><dt>ops</dt><dd>Load audit and cost ledger, one row per run.</dd></div>
   </dl>
   <h3>How a change ships</h3>
   <ol class="steps">
     <li><strong>Every push and pull request.</strong> Lint, unit tests, <code>dbt parse</code>,
     <code>terraform validate</code> and a checkov security scan, with no cloud access.</li>
-    <li><strong>Every pull request.</strong> The whole warehouse is built and tested in BigQuery in datasets of
-    its own, which are dropped at the end.</li>
-    <li><strong>Merge to main, and every Monday.</strong> Load raw, build and test every model, publish the dbt
-    docs, measure cost and rewrite the decision report. This page is rebuilt from those reports.</li>
+    <li><strong>Every pull request.</strong> In BigQuery, in datasets of its own: replay 31 days of data,
+    build, build again incrementally, rebuild from scratch, and fail unless both builds hold the same rows.</li>
+    <li><strong>Every day at 06:17, and on merge to main.</strong> Load every batch due (catching up after an
+    outage), build and test incrementally, check freshness, publish the dbt docs, measure cost and rewrite the
+    decision report. This page is rebuilt from those reports.</li>
+    <li><strong>Every six hours.</strong> A freshness check apart from the deploy. A failed deploy or data more
+    than 50 hours old opens a GitHub issue; the next good run closes it.</li>
   </ol>
   <p class="note">All infrastructure (datasets, service accounts, IAM per layer, the identity pool) is
   Terraform in <a href="{repo}/tree/main/infra">infra/</a>.</p>
@@ -291,8 +304,8 @@ def render(cost: dict, decision: dict, counts: dict[str, int]) -> str:
     run_at = dt.datetime.fromisoformat(cost["run_at"])
     date = f"{run_at:%B} {run_at.day}, {run_at.year}"
     description = (
-        "A data warehouse for the Olist marketplace on Google BigQuery: Terraform, keyless CI, "
-        "dbt contracts and tests, and measured cost."
+        "A data warehouse for the Olist marketplace on Google BigQuery: daily change feed, incremental dbt "
+        "models, freshness alerts, Terraform, keyless CI and measured cost."
     )
     adrs = "".join(f'<li><a href="{REPO}/blob/main/docs/adr/{f}">{escape(t)}</a></li>' for f, t in ADRS)
     return f"""<!doctype html>
@@ -326,13 +339,15 @@ def render(cost: dict, decision: dict, counts: dict[str, int]) -> str:
 <div class="intro">
   <h1>Olist cloud warehouse</h1>
   <p>99,441 orders from a Brazilian marketplace, modelled in Google BigQuery so that it costs nothing and could
-  still be handed to a production team: infrastructure as code, CI without keys, contracts on every table,
-  tests on every build, and cost measured on every deploy.</p>
+  still be handed to a production team. New data lands every day as a change feed, the marts update
+  incrementally, a pull request must prove the incremental build equals a full rebuild, and a late or failed
+  run opens an alert. Infrastructure as code, CI without keys, contracts on every table, cost measured on
+  every deploy.</p>
   <div class="btns"><a class="btn primary" href="dbt/">Browse the models and lineage</a>
   <a class="btn" href="{REPO}">Read the code</a></div>
   <p class="stack">Google Cloud · BigQuery · Terraform · Workload Identity Federation · dbt · GitHub Actions</p>
 </div>
-{decision_section(decision["buckets"])}
+{decision_section(decision["buckets"], decision.get("as_of"))}
 {cost_section(cost, counts)}
 {ARCH.replace("{repo}", REPO)}
 <section aria-labelledby="adr-h">

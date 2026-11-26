@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def render(buckets: list[dict], months: list[dict]) -> str:
+def render(buckets: list[dict], months: list[dict], as_of: str | None = None) -> str:
     on_time = [b for b in buckets if b["delay_bucket_days"] <= 0]
     late = [b for b in buckets if b["delay_bucket_days"] > 0]
     on_time_orders = sum(b["orders"] for b in on_time)
@@ -28,6 +28,15 @@ def render(buckets: list[dict], months: list[dict]) -> str:
     lines = [
         "# Decision: where should logistics money go?",
         "",
+        *(
+            [
+                f"Data as of {as_of}: the warehouse replays the Olist history one day per real day "
+                "(docs/adr/0006), so these numbers move as deliveries and reviews arrive.",
+                "",
+            ]
+            if as_of
+            else []
+        ),
         f"Delivered orders that arrived on time or early: {on_time_orders:,}; late: {late_orders:,} "
         f"({late_orders / (on_time_orders + late_orders):.1%}).",
         "",
@@ -59,6 +68,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", required=True)
     parser.add_argument("--location", default="southamerica-east1")
+    parser.add_argument("--as-of", help="simulated date of the latest replay batch")
     args = parser.parse_args()
 
     from google.cloud import bigquery
@@ -71,9 +81,10 @@ def main() -> None:
         f"select purchase_month_key, late_rate from `{p}.marts.mart_monthly_kpis` order by 1").result()]  # fmt: skip
     out = ROOT / "reports"
     out.mkdir(exist_ok=True)
-    (out / "decision.json").write_text(json.dumps({"buckets": buckets, "months": months}, indent=2, default=str))
-    (out / "decision.md").write_text(render(buckets, months))
-    print(render(buckets, months))
+    payload = {"as_of": args.as_of, "buckets": buckets, "months": months}
+    (out / "decision.json").write_text(json.dumps(payload, indent=2, default=str))
+    (out / "decision.md").write_text(render(buckets, months, args.as_of))
+    print(render(buckets, months, args.as_of))
 
 
 if __name__ == "__main__":

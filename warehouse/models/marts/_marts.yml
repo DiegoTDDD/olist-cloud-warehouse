@@ -8,7 +8,8 @@ models:
   - name: fct_orders
     description: >
       One row per order with delivery, payment and satisfaction measures. Integer-range
-      partitioned by purchase month and clustered by customer state and status.
+      partitioned by purchase month and clustered by customer state and status. Incremental:
+      each run rebuilds only the months with a changed order (docs/adr/0006).
     constraints:
       - type: primary_key
         columns: [order_id]
@@ -42,6 +43,7 @@ models:
       - {name: delivery_days, data_type: int64, description: "Calendar days from purchase to delivery; null if not delivered"}
       - {name: delay_days, data_type: int64, description: "Delivery date minus promised date; negative = early"}
       - {name: is_delayed, data_type: boolean, constraints: [{type: not_null}]}
+      - {name: source_batch, data_type: int64, constraints: [{type: not_null}], description: "Latest replay batch behind the row (order, items, payments, reviews); the incremental watermark"}
 
   - name: fct_order_items
     description: One row per item sold, with category and seller state. Partitioned like fct_orders.
@@ -60,6 +62,7 @@ models:
       - {name: purchase_month_key, data_type: int64, constraints: [{type: not_null}]}
       - {name: price, data_type: numeric}
       - {name: freight_value, data_type: numeric}
+      - {name: source_batch, data_type: int64, constraints: [{type: not_null}], description: "Replay batch the item arrived in; the incremental watermark"}
 
   - name: dim_customers
     constraints: [{type: primary_key, columns: [customer_id], warn_unenforced: false}]

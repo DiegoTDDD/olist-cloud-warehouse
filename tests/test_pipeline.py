@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from pipeline import load_raw
+from pipeline import load_raw, replay
 from pipeline.contracts import RAW_TABLES, SKIPPED_FILES
 from scripts.cost_report import BENCHMARK, billed, render, saving, usd
 from scripts.drop_ci_datasets import to_drop
@@ -44,14 +44,15 @@ def _fake_data(tmp_path: Path, monkeypatch) -> dict[str, str]:
     return hashes
 
 
-def test_plan_loads_new_tables_and_skips_unchanged_ones(tmp_path, monkeypatch):
+def test_plan_loads_new_reference_tables_and_skips_unchanged_ones(tmp_path, monkeypatch):
     hashes = _fake_data(tmp_path, monkeypatch)
-    orders = next(t for t in RAW_TABLES if t.name == "orders")
-    existing = {"orders": hashes[orders.file], "customers": "stale"}
+    products = next(t for t in RAW_TABLES if t.name == "products")
+    existing = {"products": hashes[products.file], "customers": "stale"}
     actions = {a.table: a.action for a in load_raw.plan(tmp_path, existing)}
-    assert actions["orders"] == "skip"
+    # the change tables (orders, items, payments, reviews) arrive through the replay, not here
+    assert set(actions) == {t.name for t in RAW_TABLES} - set(replay.CHANGE_TABLES)
+    assert actions["products"] == "skip"
     assert actions["customers"] == "load"
-    assert {a for t, a in actions.items() if t not in ("orders", "customers")} == {"load"}
     forced = {a.table: a.action for a in load_raw.plan(tmp_path, existing, force=True)}
     assert set(forced.values()) == {"load"}
 

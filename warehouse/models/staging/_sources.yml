@@ -3,16 +3,20 @@ version: 2
 sources:
   - name: raw
     description: >
-      The Olist CSV files as loaded by pipeline/load_raw.py, with explicit schemas
-      (pipeline/contracts.py). A fixed 2016-2018 snapshot: never refreshed, so freshness
-      checks do not apply.
-    schema: raw
+      Loaded by pipeline/load_raw.py with explicit schemas (pipeline/contracts.py). orders,
+      order_items, order_payments and order_reviews are change feeds: the daily replay
+      (pipeline/replay.py) appends one row per version of a record, tagged with its batch,
+      the simulated date it is known at and the real load time. The staging models keep the
+      latest version. The other tables are reference data, loaded whole.
+    schema: "{{ var('raw_dataset', 'raw') }}"
     tables:
       - name: orders
         columns:
           - name: order_id
-            data_tests: [unique, not_null]
+            data_tests: [not_null]
           - name: customer_id
+            data_tests: [not_null]
+          - name: _batch
             data_tests: [not_null]
       - name: customers
         columns:
@@ -52,3 +56,19 @@ sources:
         columns:
           - name: product_category_name
             data_tests: [unique, not_null]
+
+  - name: ops
+    description: Pipeline metadata written by the loader.
+    schema: "{{ var('ops_dataset', 'ops') }}"
+    tables:
+      - name: load_audit
+        description: >
+          One row per table per load. Freshness reads the replay rows: a new batch lands every
+          day, so no new batch for more than a day means the pipeline is late
+          (.github/workflows/monitor.yml checks this every six hours).
+        config:
+          loaded_at_field: loaded_at
+          freshness:
+            warn_after: {count: 26, period: hour}
+            error_after: {count: 50, period: hour}
+            filter: "action = 'replay'"

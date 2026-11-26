@@ -11,6 +11,14 @@ from dataclasses import dataclass
 
 STRING, INT, NUM, DT = "STRING", "INT64", "NUMERIC", "DATETIME"
 
+# Columns the loader adds to the four change tables (orders, items, payments, reviews), which
+# hold one row per version of a record as the daily replay delivers it (pipeline/replay.py).
+BATCH_COLUMNS = (
+    ("_batch", INT, "REQUIRED"),  # replay batch; the table is integer-range partitioned on it
+    ("_as_of", "DATE", "REQUIRED"),  # the simulated date the row is known at
+    ("_loaded_at", "TIMESTAMP", "REQUIRED"),  # real load time
+)
+
 
 @dataclass(frozen=True)
 class RawTable:

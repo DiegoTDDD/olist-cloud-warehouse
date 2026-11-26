@@ -21,7 +21,9 @@ jobs:
       - run: pip install -r requirements.txt -r requirements-dev.txt
       - name: Lint
         run: ruff check . && ruff format --check .
-      - name: Unit tests (loader plan, raw contracts, billing rules, janitor safety)
+      - name: Download the source files (the replay tests run on the real data)
+        run: bash scripts/download_data.sh
+      - name: Unit tests (replay rebuilds the snapshot exactly, loader plans, contracts, billing, janitor)
         run: pytest -q
       - name: dbt parses, every model and test compiles against the declared contracts
         working-directory: warehouse

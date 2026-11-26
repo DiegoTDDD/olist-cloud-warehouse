@@ -1,18 +1,26 @@
 name: deploy
 
-# main: load raw (only what changed), build and test every model, measure cost, publish the
-# report. Weekly as well, because the sandbox deletes anything older than 60 days.
+# Every day at 06:17 in Sao Paulo: load the next day of the replayed change feed (and catch up
+# on any missed day), build the marts incrementally, test them, measure cost, publish the
+# reports. On main pushes as well, which rebuild without loading anything new.
+# A failure opens a GitHub issue labelled pipeline-alert; the next good run closes it.
 on:
   push:
     branches: [main]
     paths-ignore: ["**.md", "docs/**", "reports/**"]
   schedule:
-    - cron: "17 9 * * 1" # Mondays 06:17 in Sao Paulo
+    - cron: "17 9 * * *"
   workflow_dispatch:
+    inputs:
+      full_refresh:
+        description: "Rebuild every incremental model from scratch (runbook: docs/runbook.md)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write # commit reports/
   id-token: write
+  issues: write # pipeline alerts
 
 concurrency:
   group: deploy
@@ -21,6 +29,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       GCP_PROJECT: ${{ vars.GCP_PROJECT }}
       DBT_TARGET: prod
@@ -38,18 +47,29 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Download the source files and check their SHA-256 hashes
         run: bash scripts/download_data.sh
-      - name: Load raw (skips tables that already hold the same file)
+      - name: Load raw (reference tables if changed; every replay batch due by today)
+        id: load
         run: python -m pipeline.load_raw --project "$GCP_PROJECT"
-      - name: dbt build (models, contracts and tests)
+      - name: dbt build (incremental; full refresh after a reset or on request)
         working-directory: warehouse
-        run: dbt build --fail-fast
+        env:
+          FULL_REFRESH: ${{ steps.load.outputs.full_refresh == 'true' || inputs.full_refresh == true }}
+        run: |
+          if [ "$FULL_REFRESH" = "true" ]; then
+            echo "Full refresh"; dbt build --fail-fast --full-refresh
+          else
+            dbt build --fail-fast
+          fi
+      - name: dbt source freshness (today's batch arrived)
+        working-directory: warehouse
+        run: dbt source freshness --select source:ops
       - name: Generate dbt docs (lineage and column documentation)
         working-directory: warehouse
         run: dbt docs generate --static
       - name: Measure cost and storage
         run: python scripts/cost_report.py --project "$GCP_PROJECT"
       - name: Write the decision report from the marts
-        run: python scripts/decision_report.py --project "$GCP_PROJECT"
+        run: python scripts/decision_report.py --project "$GCP_PROJECT" --as-of "${{ steps.load.outputs.as_of }}"
       - name: Drop pull request datasets older than a day
         run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --older-than-hours 24 || true
       - name: Commit the report and the docs
@@ -64,5 +84,16 @@ jobs:
           rm -rf reports && cp -r "$RUNNER_TEMP/out/reports" reports
           mkdir -p docs/dbt && cp "$RUNNER_TEMP/out/dbt/index.html" docs/dbt/index.html
           git add reports docs/dbt
-          git commit -m "Deploy ${{ github.run_id }}: reports and dbt docs" || exit 0
+          git commit -m "Deploy ${{ github.run_id }}: data as of ${{ steps.load.outputs.as_of }}" || exit 0
           git push origin main
+      - name: Close the alert after a good run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/alert.sh ok "deploy ${{ github.run_id }} loaded data as of ${{ steps.load.outputs.as_of }} and passed every test."
+      - name: Open an alert
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          scripts/alert.sh fail "Pipeline failed: deploy ${{ github.run_id }}" \
+            "The deploy failed. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. What to do: docs/runbook.md."

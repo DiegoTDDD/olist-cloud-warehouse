@@ -1,8 +1,12 @@
 name: pr-build
 
-# Every pull request builds and tests the whole warehouse in BigQuery, in its own throwaway
-# datasets (ci_pr_<number>_staging, ci_pr_<number>_marts), as the pr-builder service account.
-# That account authenticates keylessly and can read raw but cannot write any production dataset.
+# Every pull request runs the pipeline end to end in BigQuery, in its own throwaway datasets
+# (ci_pr_<number>_*), as the pr-builder service account. That account authenticates keylessly
+# and cannot write any production dataset.
+#
+# It replays the first days of the change feed, builds, replays more days (orders bought weeks
+# earlier get delivered and reviewed), builds again incrementally, then rebuilds everything
+# from scratch into ci_pr_<number>_full_* and requires both to hold exactly the same rows.
 on:
   pull_request:
 
@@ -24,6 +28,7 @@ jobs:
       DBT_TARGET: ci
       DBT_PROFILES_DIR: .
       CI_DATASET_PREFIX: ci_pr_${{ github.event.pull_request.number }}
+      DBT_VARS: '{raw_dataset: ci_pr_${{ github.event.pull_request.number }}_raw, ops_dataset: ci_pr_${{ github.event.pull_request.number }}_ops}'
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v3
@@ -35,9 +40,28 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: dbt build (models, contracts and tests) into ci_pr_${{ github.event.pull_request.number }}_*
+      - name: Download the source files and check their SHA-256 hashes
+        run: bash scripts/download_data.sh
+      - name: Replay batches 0-2 (state on 2018-01-01, then two days)
+        run: python -m pipeline.load_raw --project "$GCP_PROJECT" --dataset "${CI_DATASET_PREFIX}_raw" --ops-dataset "${CI_DATASET_PREFIX}_ops" --until-batch 2
+      - name: dbt build (first build of every model)
         working-directory: warehouse
-        run: dbt build --fail-fast
+        run: dbt build --fail-fast --vars "$DBT_VARS"
+      - name: Replay batches 3-30 (new orders, deliveries and reviews of older ones)
+        run: python -m pipeline.load_raw --project "$GCP_PROJECT" --dataset "${CI_DATASET_PREFIX}_raw" --ops-dataset "${CI_DATASET_PREFIX}_ops" --until-batch 30
+      - name: dbt build (incremental)
+        working-directory: warehouse
+        run: dbt build --fail-fast --vars "$DBT_VARS"
+      - name: dbt source freshness (the loader just ran)
+        working-directory: warehouse
+        run: dbt source freshness --select source:ops --vars "$DBT_VARS"
+      - name: Rebuild everything from scratch into ci_pr_${{ github.event.pull_request.number }}_full_*
+        working-directory: warehouse
+        env:
+          CI_DATASET_PREFIX: ci_pr_${{ github.event.pull_request.number }}_full
+        run: dbt build --fail-fast --full-refresh --vars "$DBT_VARS"
+      - name: The incremental build must equal the full rebuild, row for row
+        run: python scripts/compare_builds.py --project "$GCP_PROJECT" --left "${CI_DATASET_PREFIX}_marts" --right "${CI_DATASET_PREFIX}_full_marts"
       - name: Drop this pull request's datasets
         if: always()
         run: python scripts/drop_ci_datasets.py --project "$GCP_PROJECT" --prefix "$CI_DATASET_PREFIX"

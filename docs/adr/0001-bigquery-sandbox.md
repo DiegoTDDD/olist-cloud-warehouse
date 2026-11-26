@@ -14,8 +14,8 @@ Use the sandbox, and make each limit a design input instead of a surprise:
 
 | Limit | Design |
 |---|---|
-| No DML | Raw data arrives through load jobs (free and allowed); dbt builds every mart with `CREATE OR REPLACE TABLE ... AS SELECT`; audit and cost rows are appended with load jobs too. No incremental `MERGE` models. |
-| 60-day expiration | The deploy runs weekly. dbt recreates its tables and views; the loader and the cost report push the expiration of raw and ops tables forward with a metadata update, not a rewrite. |
+| No DML | Raw data arrives through load jobs (free and allowed), each replay batch replacing its own partition. The incremental fact tables swap in rebuilt partitions with copy jobs instead of `MERGE` (ADR 0006); the other marts are `CREATE OR REPLACE TABLE ... AS SELECT`. Audit and cost rows are appended with load jobs too. |
+| 60-day expiration | The deploy runs daily. dbt recreates or updates its tables and views; the loader and the cost report push the expiration of raw and ops tables forward with a metadata update, not a rewrite. |
 | Partitions older than 60 days expire | Integer-range partitions on a YYYYMM key instead of date partitions (ADR 0004). |
 | 10 GiB lifetime storage | Raw tables are reloaded only when the source file's SHA-256 changes. The 59 MB geolocation file, which no model uses, is not loaded. The cost report tracks storage against the allowance. |
 | No Cloud Storage | Terraform state stays in Cloud Shell (ADR 0005). |
@@ -24,5 +24,5 @@ Use the sandbox, and make each limit a design input instead of a surprise:
 ## Consequences
 
 The same code runs unchanged on a billed project, where most of these workarounds simply stop
-mattering (incremental models and a Cloud Storage backend would then be the next steps). The
+mattering (a `MERGE`-based incremental strategy and a Cloud Storage backend would then be options). The
 datasets live in `southamerica-east1`, so Brazilian customer data stays in Brazil.
