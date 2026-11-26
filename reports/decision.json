@@ -1,100 +1,101 @@
 {
+  "as_of": "2018-01-01",
   "buckets": [
     {
       "delay_bucket_days": -1,
       "delay_bucket": "early",
-      "orders": 88644,
-      "reviewed_orders": 88163,
+      "orders": 39046,
+      "reviewed_orders": 38779,
       "avg_review_score": 4.29,
-      "one_star_share": 0.0659
+      "one_star_share": 0.0637
     },
     {
       "delay_bucket_days": 0,
       "delay_bucket": "on the promised day",
-      "orders": 1292,
-      "reviewed_orders": 1280,
-      "avg_review_score": 4.03,
-      "one_star_share": 0.0852
+      "orders": 386,
+      "reviewed_orders": 382,
+      "avg_review_score": 3.87,
+      "one_star_share": 0.1099
     },
     {
       "delay_bucket_days": 1,
       "delay_bucket": "1 day late",
-      "orders": 825,
-      "reviewed_orders": 820,
-      "avg_review_score": 3.73,
-      "one_star_share": 0.1305
+      "orders": 274,
+      "reviewed_orders": 273,
+      "avg_review_score": 3.75,
+      "one_star_share": 0.1282
     },
     {
       "delay_bucket_days": 2,
       "delay_bucket": "2 days late",
-      "orders": 545,
-      "reviewed_orders": 536,
-      "avg_review_score": 3.18,
-      "one_star_share": 0.2743
+      "orders": 169,
+      "reviewed_orders": 164,
+      "avg_review_score": 3.07,
+      "one_star_share": 0.311
     },
     {
       "delay_bucket_days": 3,
       "delay_bucket": "3 days late",
-      "orders": 500,
-      "reviewed_orders": 496,
-      "avg_review_score": 2.68,
-      "one_star_share": 0.4254
+      "orders": 151,
+      "reviewed_orders": 150,
+      "avg_review_score": 2.69,
+      "one_star_share": 0.44
     },
     {
       "delay_bucket_days": 4,
       "delay_bucket": "4 days late",
-      "orders": 453,
-      "reviewed_orders": 436,
-      "avg_review_score": 2.5,
-      "one_star_share": 0.4817
+      "orders": 132,
+      "reviewed_orders": 125,
+      "avg_review_score": 2.54,
+      "one_star_share": 0.472
     },
     {
       "delay_bucket_days": 5,
       "delay_bucket": "5 days late",
-      "orders": 447,
-      "reviewed_orders": 434,
-      "avg_review_score": 2.2,
-      "one_star_share": 0.553
+      "orders": 125,
+      "reviewed_orders": 122,
+      "avg_review_score": 2.43,
+      "one_star_share": 0.5
     },
     {
       "delay_bucket_days": 6,
       "delay_bucket": "6 days late",
-      "orders": 419,
-      "reviewed_orders": 407,
-      "avg_review_score": 1.81,
-      "one_star_share": 0.6855
+      "orders": 114,
+      "reviewed_orders": 110,
+      "avg_review_score": 1.87,
+      "one_star_share": 0.6636
     },
     {
       "delay_bucket_days": 7,
       "delay_bucket": "7 days late",
-      "orders": 483,
-      "reviewed_orders": 471,
-      "avg_review_score": 1.91,
-      "one_star_share": 0.6263
+      "orders": 154,
+      "reviewed_orders": 149,
+      "avg_review_score": 2.16,
+      "one_star_share": 0.5503
     },
     {
       "delay_bucket_days": 8,
       "delay_bucket": "8 days late",
-      "orders": 336,
-      "reviewed_orders": 330,
-      "avg_review_score": 1.71,
-      "one_star_share": 0.6879
+      "orders": 84,
+      "reviewed_orders": 82,
+      "avg_review_score": 1.91,
+      "one_star_share": 0.6463
     },
     {
       "delay_bucket_days": 9,
       "delay_bucket": "9 days late",
-      "orders": 227,
-      "reviewed_orders": 219,
-      "avg_review_score": 1.67,
-      "one_star_share": 0.7215
+      "orders": 66,
+      "reviewed_orders": 64,
+      "avg_review_score": 1.73,
+      "one_star_share": 0.7188
     },
     {
       "delay_bucket_days": 10,
       "delay_bucket": "10 or more days late",
-      "orders": 2299,
-      "reviewed_orders": 2232,
-      "avg_review_score": 1.7,
-      "one_star_share": 0.698
+      "orders": 496,
+      "reviewed_orders": 472,
+      "avg_review_score": 1.92,
+      "one_star_share": 0.6398
     }
   ],
   "months": [
@@ -144,59 +145,19 @@
     },
     {
       "purchase_month_key": 201709,
-      "late_rate": 0.0439
+      "late_rate": 0.0436
     },
     {
       "purchase_month_key": 201710,
-      "late_rate": 0.0418
+      "late_rate": 0.0411
     },
     {
       "purchase_month_key": 201711,
-      "late_rate": 0.124
+      "late_rate": 0.0874
     },
     {
       "purchase_month_key": 201712,
-      "late_rate": 0.0746
-    },
-    {
-      "purchase_month_key": 201801,
-      "late_rate": 0.057
-    },
-    {
-      "purchase_month_key": 201802,
-      "late_rate": 0.1414
-    },
-    {
-      "purchase_month_key": 201803,
-      "late_rate": 0.1896
-    },
-    {
-      "purchase_month_key": 201804,
-      "late_rate": 0.045
-    },
-    {
-      "purchase_month_key": 201805,
-      "late_rate": 0.0656
-    },
-    {
-      "purchase_month_key": 201806,
-      "late_rate": 0.0116
-    },
-    {
-      "purchase_month_key": 201807,
-      "late_rate": 0.0338
-    },
-    {
-      "purchase_month_key": 201808,
-      "late_rate": 0.0619
-    },
-    {
-      "purchase_month_key": 201809,
-      "late_rate": null
-    },
-    {
-      "purchase_month_key": 201810,
-      "late_rate": null
+      "late_rate": 0.0054
     }
   ]
 }

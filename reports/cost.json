@@ -1,99 +1,57 @@
 {
-  "run_at": "2026-11-26T03:08:54+00:00",
+  "run_at": "2026-11-26T22:53:52+00:00",
   "price_usd_per_tib": 6.25,
   "build": {
-    "jobs": 74,
-    "bytes_processed": 170172848,
-    "bytes_billed": 660602880,
-    "slot_ms": 25986
+    "jobs": 76,
+    "bytes_processed": 114609221,
+    "bytes_billed": 671088640,
+    "slot_ms": 41150
   },
   "build_by_node": [
     {
       "node": "fct_orders",
       "jobs": 3,
-      "bytes_processed": 42023762,
+      "bytes_processed": 24769891,
       "bytes_billed": 52428800,
-      "slot_ms": 11389
+      "slot_ms": 22069
     },
     {
       "node": "fct_order_items",
       "jobs": 3,
-      "bytes_processed": 22359620,
+      "bytes_processed": 11563914,
       "bytes_billed": 52428800,
-      "slot_ms": 7267
+      "slot_ms": 11183
+    },
+    {
+      "node": "assert_raw_one_version_per_batch",
+      "jobs": 1,
+      "bytes_processed": 10135870,
+      "bytes_billed": 41943040,
+      "slot_ms": 342
     },
     {
       "node": "dim_customers",
       "jobs": 3,
       "bytes_processed": 9083385,
       "bytes_billed": 10485760,
-      "slot_ms": 1353
-    },
-    {
-      "node": "mart_monthly_kpis",
-      "jobs": 3,
-      "bytes_processed": 7748592,
-      "bytes_billed": 10485760,
-      "slot_ms": 877
-    },
-    {
-      "node": "source_relationships_raw_order_items_order_id__order_id__source",
-      "jobs": 1,
-      "bytes_processed": 7211094,
-      "bytes_billed": 20971520,
-      "slot_ms": 156
+      "slot_ms": 1758
     },
     {
       "node": "relationships_fct_orders_customer_id__customer_id__ref_dim_cust",
       "jobs": 1,
-      "bytes_processed": 6761988,
+      "bytes_processed": 4925614,
       "bytes_billed": 20971520,
-      "slot_ms": 261
+      "slot_ms": 323
     },
     {
-      "node": "assert_amounts_not_negative",
-      "jobs": 1,
-      "bytes_processed": 5543824,
+      "node": "mart_monthly_kpis",
+      "jobs": 3,
+      "bytes_processed": 3517191,
       "bytes_billed": 10485760,
-      "slot_ms": 154
-    },
-    {
-      "node": "assert_money_reconciles",
-      "jobs": 1,
-      "bytes_processed": 5077784,
-      "bytes_billed": 20971520,
-      "slot_ms": 198
-    },
-    {
-      "node": "source_not_null_raw_order_items_order_id",
-      "jobs": 1,
-      "bytes_processed": 3830100,
-      "bytes_billed": 10485760,
-      "slot_ms": 3
-    },
-    {
-      "node": "source_not_null_raw_order_payments_order_id",
-      "jobs": 1,
-      "bytes_processed": 3532124,
-      "bytes_billed": 10485760,
-      "slot_ms": 3
+      "slot_ms": 853
     },
     {
       "node": "source_not_null_raw_customers_customer_id",
-      "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 2
-    },
-    {
-      "node": "source_not_null_raw_orders_customer_id",
-      "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 3
-    },
-    {
-      "node": "source_not_null_raw_orders_order_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
@@ -104,28 +62,7 @@
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 92
-    },
-    {
-      "node": "source_unique_raw_orders_order_id",
-      "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 102
-    },
-    {
-      "node": "not_null_stg_orders_order_id",
-      "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 3
-    },
-    {
-      "node": "unique_stg_orders_order_id",
-      "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 116
+      "slot_ms": 110
     },
     {
       "node": "not_null_stg_customers_customer_id",
@@ -139,42 +76,70 @@
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 97
+      "slot_ms": 113
     },
     {
       "node": "unique_dim_customers_customer_id",
       "jobs": 1,
       "bytes_processed": 3380994,
       "bytes_billed": 10485760,
-      "slot_ms": 87
+      "slot_ms": 85
     },
     {
-      "node": "unique_fct_orders_order_id",
+      "node": "source_relationships_raw_order_items_order_id__order_id__source",
       "jobs": 1,
-      "bytes_processed": 3380994,
-      "bytes_billed": 10485760,
-      "slot_ms": 243
+      "bytes_processed": 3286576,
+      "bytes_billed": 20971520,
+      "slot_ms": 200
     },
     {
       "node": "dim_products",
       "jobs": 3,
       "bytes_processed": 2984520,
       "bytes_billed": 20971520,
-      "slot_ms": 1018
-    },
-    {
-      "node": "mart_delivery_satisfaction",
-      "jobs": 3,
-      "bytes_processed": 2653325,
-      "bytes_billed": 10485760,
-      "slot_ms": 702
+      "slot_ms": 955
     },
     {
       "node": "assert_delivered_orders_have_a_delivery_date",
       "jobs": 1,
-      "bytes_processed": 1864013,
+      "bytes_processed": 2732585,
       "bytes_billed": 10485760,
-      "slot_ms": 11
+      "slot_ms": 50
+    },
+    {
+      "node": "assert_amounts_not_negative",
+      "jobs": 1,
+      "bytes_processed": 2526536,
+      "bytes_billed": 10485760,
+      "slot_ms": 83
+    },
+    {
+      "node": "accepted_values_stg_orders_status__delivered__shipped__canceled",
+      "jobs": 1,
+      "bytes_processed": 2402969,
+      "bytes_billed": 10485760,
+      "slot_ms": 7
+    },
+    {
+      "node": "assert_money_reconciles",
+      "jobs": 1,
+      "bytes_processed": 2311312,
+      "bytes_billed": 20971520,
+      "slot_ms": 154
+    },
+    {
+      "node": "assert_watermark_covers_the_loaded_batches",
+      "jobs": 1,
+      "bytes_processed": 2271500,
+      "bytes_billed": 20971520,
+      "slot_ms": 93
+    },
+    {
+      "node": "unique_stg_orders_order_id",
+      "jobs": 1,
+      "bytes_processed": 1908060,
+      "bytes_billed": 10485760,
+      "slot_ms": 73
     },
     {
       "node": "not_null_stg_products_product_id",
@@ -188,77 +153,84 @@
       "jobs": 1,
       "bytes_processed": 1670141,
       "bytes_billed": 20971520,
-      "slot_ms": 45
+      "slot_ms": 39
+    },
+    {
+      "node": "assert_one_fact_row_per_order",
+      "jobs": 1,
+      "bytes_processed": 1544620,
+      "bytes_billed": 20971520,
+      "slot_ms": 80
+    },
+    {
+      "node": "unique_fct_orders_order_id",
+      "jobs": 1,
+      "bytes_processed": 1544620,
+      "bytes_billed": 10485760,
+      "slot_ms": 129
+    },
+    {
+      "node": "mart_delivery_satisfaction",
+      "jobs": 3,
+      "bytes_processed": 1166417,
+      "bytes_billed": 10485760,
+      "slot_ms": 833
     },
     {
       "node": "source_not_null_raw_products_product_id",
       "jobs": 1,
       "bytes_processed": 1120334,
       "bytes_billed": 10485760,
-      "slot_ms": 2
+      "slot_ms": 8
     },
     {
       "node": "source_unique_raw_products_product_id",
       "jobs": 1,
       "bytes_processed": 1120334,
       "bytes_billed": 10485760,
-      "slot_ms": 44
+      "slot_ms": 47
     },
     {
       "node": "unique_dim_products_product_id",
       "jobs": 1,
       "bytes_processed": 1120334,
       "bytes_billed": 10485760,
-      "slot_ms": 40
-    },
-    {
-      "node": "accepted_values_stg_orders_status__delivered__shipped__canceled",
-      "jobs": 1,
-      "bytes_processed": 1092205,
-      "bytes_billed": 10485760,
-      "slot_ms": 9
-    },
-    {
-      "node": "assert_is_delayed_matches_delay_days",
-      "jobs": 1,
-      "bytes_processed": 871249,
-      "bytes_billed": 10485760,
-      "slot_ms": 132
-    },
-    {
-      "node": "source_accepted_values_raw_order_reviews_review_score__false__1",
-      "jobs": 1,
-      "bytes_processed": 793792,
-      "bytes_billed": 10485760,
-      "slot_ms": 6
-    },
-    {
-      "node": "source_not_null_raw_order_reviews_review_score",
-      "jobs": 1,
-      "bytes_processed": 793792,
-      "bytes_billed": 10485760,
-      "slot_ms": 2
-    },
-    {
-      "node": "accepted_values_fct_orders_review_score__false__1__2__3__4__5",
-      "jobs": 1,
-      "bytes_processed": 789328,
-      "bytes_billed": 10485760,
-      "slot_ms": 101
+      "slot_ms": 37
     },
     {
       "node": "not_null_stg_products_category",
       "jobs": 1,
       "bytes_processed": 551090,
       "bytes_billed": 20971520,
-      "slot_ms": 10
+      "slot_ms": 11
+    },
+    {
+      "node": "assert_is_delayed_matches_delay_days",
+      "jobs": 1,
+      "bytes_processed": 375046,
+      "bytes_billed": 10485760,
+      "slot_ms": 68
+    },
+    {
+      "node": "source_accepted_values_raw_order_reviews_review_score__false__1",
+      "jobs": 1,
+      "bytes_processed": 344480,
+      "bytes_billed": 10485760,
+      "slot_ms": 8
+    },
+    {
+      "node": "accepted_values_fct_orders_review_score__false__1__2__3__4__5",
+      "jobs": 1,
+      "bytes_processed": 341888,
+      "bytes_billed": 10485760,
+      "slot_ms": 59
     },
     {
       "node": "dim_sellers",
       "jobs": 3,
       "bytes_processed": 176935,
       "bytes_billed": 10485760,
-      "slot_ms": 561
+      "slot_ms": 528
     },
     {
       "node": "source_not_null_raw_sellers_seller_id",
@@ -272,14 +244,14 @@
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 7
+      "slot_ms": 20
     },
     {
       "node": "not_null_stg_sellers_seller_id",
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 3
+      "slot_ms": 2
     },
     {
       "node": "unique_stg_sellers_seller_id",
@@ -293,56 +265,98 @@
       "jobs": 1,
       "bytes_processed": 105230,
       "bytes_billed": 10485760,
-      "slot_ms": 16
+      "slot_ms": 8
     },
     {
       "node": "unique_dim_dates_date_day",
       "jobs": 1,
       "bytes_processed": 8768,
       "bytes_billed": 10485760,
-      "slot_ms": 11
+      "slot_ms": 8
     },
     {
       "node": "source_not_null_raw_product_category_name_translation_product_c",
       "jobs": 1,
       "bytes_processed": 1347,
       "bytes_billed": 10485760,
-      "slot_ms": 3
+      "slot_ms": 2
     },
     {
       "node": "source_unique_raw_product_category_name_translation_product_cat",
       "jobs": 1,
       "bytes_processed": 1347,
       "bytes_billed": 10485760,
-      "slot_ms": 11
+      "slot_ms": 10
     },
     {
       "node": "unique_mart_monthly_kpis_purchase_month_key",
       "jobs": 1,
-      "bytes_processed": 200,
+      "bytes_processed": 120,
       "bytes_billed": 10485760,
-      "slot_ms": 7
+      "slot_ms": 4
     },
     {
       "node": "assert_kpis_cover_every_order",
       "jobs": 1,
-      "bytes_processed": 200,
+      "bytes_processed": 120,
       "bytes_billed": 20971520,
-      "slot_ms": 72
+      "slot_ms": 50
     },
     {
       "node": "unique_mart_delivery_satisfaction_delay_bucket_days",
       "jobs": 1,
       "bytes_processed": 96,
       "bytes_billed": 10485760,
-      "slot_ms": 10
+      "slot_ms": 8
     },
     {
       "node": "dim_dates",
       "jobs": 3,
       "bytes_processed": 0,
       "bytes_billed": 0,
-      "slot_ms": 543
+      "slot_ms": 606
+    },
+    {
+      "node": "source_not_null_raw_order_payments_order_id",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 8
+    },
+    {
+      "node": "source_not_null_raw_order_items_order_id",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 6
+    },
+    {
+      "node": "source_not_null_raw_order_reviews_review_score",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 3
+    },
+    {
+      "node": "source_not_null_raw_orders__batch",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 2
+    },
+    {
+      "node": "source_not_null_raw_orders_customer_id",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 7
+    },
+    {
+      "node": "source_not_null_raw_orders_order_id",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 14
     },
     {
       "node": "stg_order_items",
@@ -352,14 +366,14 @@
       "slot_ms": 0
     },
     {
-      "node": "stg_order_reviews",
+      "node": "stg_order_payments",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
       "slot_ms": 0
     },
     {
-      "node": "stg_order_payments",
+      "node": "stg_order_reviews",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
@@ -394,25 +408,25 @@
       "slot_ms": 0
     },
     {
+      "node": "not_null_stg_orders_order_id",
+      "jobs": 1,
+      "bytes_processed": 0,
+      "bytes_billed": 0,
+      "slot_ms": 2
+    },
+    {
       "node": "assert_delivery_after_purchase",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
-      "slot_ms": 109
-    },
-    {
-      "node": "assert_one_fact_row_per_order",
-      "jobs": 1,
-      "bytes_processed": 0,
-      "bytes_billed": 0,
-      "slot_ms": 87
+      "slot_ms": 75
     },
     {
       "node": "assert_partitions_hold_every_month",
       "jobs": 1,
       "bytes_processed": 0,
       "bytes_billed": 0,
-      "slot_ms": 2
+      "slot_ms": 1
     }
   ],
   "benchmark": [
@@ -420,28 +434,28 @@
       "query": "one_month",
       "question": "GMV and orders in one month",
       "partitioned_bytes": 181056,
-      "unpartitioned_bytes": 2386568,
-      "bytes_saved": 0.9241
+      "unpartitioned_bytes": 1090304,
+      "bytes_saved": 0.8339
     },
     {
       "query": "one_state_quarter",
       "question": "Late rate in one state over a quarter",
-      "partitioned_bytes": 508519,
-      "unpartitioned_bytes": 2384938,
-      "bytes_saved": 0.7868
+      "partitioned_bytes": 0,
+      "unpartitioned_bytes": 1085499,
+      "bytes_saved": 1.0
     },
     {
       "query": "year_by_state",
       "question": "Orders by state for a year",
       "partitioned_bytes": 541212,
-      "unpartitioned_bytes": 1193292,
-      "bytes_saved": 0.5465
+      "unpartitioned_bytes": 545160,
+      "bytes_saved": 0.0072
     },
     {
       "query": "full_history",
       "question": "Monthly late rate over the whole history (no filter: nothing to prune)",
-      "partitioned_bytes": 894969,
-      "unpartitioned_bytes": 894969,
+      "partitioned_bytes": 408870,
+      "unpartitioned_bytes": 408870,
       "bytes_saved": 0.0
     }
   ],
@@ -449,17 +463,17 @@
     {
       "dataset": "marts",
       "tables": 8,
-      "logical_bytes": 55440583
+      "logical_bytes": 32915648
     },
     {
       "dataset": "ops",
       "tables": 2,
-      "logical_bytes": 13251
+      "logical_bytes": 15033
     },
     {
       "dataset": "raw",
       "tables": 8,
-      "logical_bytes": 61770800
+      "logical_bytes": 39252057
     },
     {
       "dataset": "staging",
@@ -467,6 +481,6 @@
       "logical_bytes": 0
     }
   ],
-  "storage_bytes": 117224634,
-  "storage_share_of_sandbox": 0.010917394794523716
+  "storage_bytes": 72182738,
+  "storage_share_of_sandbox": 0.0067225413396954535
 }
