@@ -26,14 +26,13 @@ is a runbook. Infrastructure as code, keyless CI, contracts on every table, meas
 | Cost | Every query labelled; build and query bytes measured each deploy; 1 GB per-query guardrail |
 | Price | US$ 0: BigQuery sandbox, GitHub Actions |
 
-**Measured on the latest deploy** ([reports/cost.md](reports/cost.md)):
+**Measured on every deploy** ([reports/cost.md](reports/cost.md); these numbers are from 2026-11-26):
 
 | | |
 |---|---|
-| Full build, all models and tests | 162 MB read, US$ 0.004 at on-demand list price |
-| "GMV in one month" on the partitioned fact table | 92% fewer bytes than an unpartitioned copy |
-| "Late rate in one state over a quarter" | 79% fewer bytes |
-| Storage used | 112 MB, 1.1% of the sandbox's 10 GiB lifetime allowance |
+| Daily build, all models and tests | 110 MB read, US$ 0.004 at on-demand list price |
+| "GMV in one month" on the partitioned fact table | 83% fewer bytes than an unpartitioned copy (92% on the full history) |
+| Storage used | 69 MB, 0.7% of the sandbox's 10 GiB allowance |
 
 ## The decision it supports
 
