@@ -1,11 +1,11 @@
 {
-  "as_of": "2018-01-01",
+  "as_of": "2018-01-02",
   "buckets": [
     {
       "delay_bucket_days": -1,
       "delay_bucket": "early",
-      "orders": 39046,
-      "reviewed_orders": 38779,
+      "orders": 39047,
+      "reviewed_orders": 38784,
       "avg_review_score": 4.29,
       "one_star_share": 0.0637
     },
@@ -158,6 +158,10 @@
     {
       "purchase_month_key": 201712,
       "late_rate": 0.0054
+    },
+    {
+      "purchase_month_key": 201801,
+      "late_rate": null
     }
   ]
 }
