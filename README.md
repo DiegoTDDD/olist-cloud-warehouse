@@ -36,12 +36,15 @@ is a runbook. Infrastructure as code, keyless CI, contracts on every table, meas
 
 ## The decision it supports
 
-[reports/decision.md](reports/decision.md), rebuilt on every deploy from `mart_delivery_satisfaction`:
-6.8% of delivered orders arrive late. Every day of delay costs rating until about six days
-late (4.03 on the promised day, 3.73 after one day, 1.81 after six; the 1-star share goes from
-8.5% to 68.5%). After that the rating stays near 1.7. Logistics money pays off inside the
-first week of a delay: turning a 3-day delay into a 1-day one recovers rating, turning a
-20-day delay into a 12-day one recovers almost none.
+[reports/decision.md](reports/decision.md), rebuilt on every deploy from `mart_delivery_satisfaction`.
+While the replay runs, it covers the orders delivered and reviewed up to the replay date it
+states, so its numbers move every day. On the complete history, measured before the replay
+began: 6.8% of delivered orders arrive late, and every day of delay costs rating until about
+six days late (4.03 on the promised day, 3.73 after one day, 1.81 after six; the 1-star share
+goes from 8.5% to 68.5%). After that the rating stays near 1.7. Logistics money pays off
+inside the first week of a delay: turning a 3-day delay into a 1-day one recovers rating,
+turning a 20-day delay into a 12-day one recovers almost none. The report reaches the same
+shape in its first days of replay (late orders lose most of their rating by day six).
 
 ## Architecture
 
