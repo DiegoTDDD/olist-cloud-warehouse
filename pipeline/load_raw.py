@@ -326,15 +326,59 @@ def run_replay(client, dataset: str, data_dir: Path, target: replay.Position, so
     return p, rows
 
 
-def refresh_expiration(client, dataset: str) -> int:
-    """Push every table's expiration forward: the sandbox would otherwise delete them."""
+RENEW_WITHIN_DAYS = 30  # extend a table's expiration once it is less than this far away
+
+
+def refresh_expiration(client, dataset: str, now: dt.datetime | None = None) -> int:
+    """Keep every table of a dataset alive: the sandbox deletes a table when it expires.
+
+    Tables whose expiration is still more than RENEW_WITHIN_DAYS away are left alone (no
+    metadata update). The others get a new expiration; if the sandbox refuses it (it rejected
+    an extension on 2026-11-27 with "must be less than 60 days"), the table is renewed by copy,
+    which gives it a new creation time. Views are skipped: dbt recreates them every run.
+    Returns the number of tables extended or renewed.
+    """
+    from google.api_core.exceptions import Forbidden
+
+    now = now or dt.datetime.now(dt.UTC)
     n = 0
     for item in client.list_tables(dataset):
+        if item.table_type != "TABLE" or item.table_id.endswith(RENEW_SUFFIX):
+            continue
         table = client.get_table(item.reference)
+        if table.expires and table.expires > now + dt.timedelta(days=RENEW_WITHIN_DAYS):
+            continue
         table.expires = _expires()
-        client.update_table(table, ["expires"])
+        try:
+            client.update_table(table, ["expires"])
+        except Forbidden as e:
+            print(f"expiration of {dataset}.{item.table_id} refused ({e.message[:80]}); renewing by copy", flush=True)
+            renew_by_copy(client, table)
         n += 1
     return n
+
+
+RENEW_SUFFIX = "__renew"
+
+
+def renew_by_copy(client, table) -> None:
+    """Recreate a table from a copy of itself, so it gets a new creation time and expiration.
+
+    The original is deleted only after the copy has succeeded, and the copy only after the
+    table is back, so a failure at any point leaves the data in one of the two tables.
+    """
+    from google.cloud import bigquery
+
+    ref = f"{table.project}.{table.dataset_id}.{table.table_id}"
+    tmp = ref + RENEW_SUFFIX
+    truncate = bigquery.CopyJobConfig(write_disposition="WRITE_TRUNCATE")
+    client.copy_table(ref, tmp, job_config=truncate).result()
+    client.delete_table(ref)
+    client.copy_table(tmp, ref, job_config=truncate).result()
+    client.delete_table(tmp)
+    renewed = client.get_table(ref)
+    renewed.description, renewed.labels, renewed.expires = table.description, table.labels, _expires()
+    client.update_table(renewed, ["description", "labels", "expires"])
 
 
 def ensure_datasets(client, project: str, location: str, names) -> None:
@@ -408,7 +452,8 @@ def main(argv: list[str] | None = None) -> None:
                           "batch_from": p.batches[name][0], "batch_to": p.batches[name][-1],
                           "as_of": target.as_of.isoformat()})  # fmt: skip
     write_audit(client, args.ops_dataset, audit)
-    refreshed = refresh_expiration(client, args.dataset) + refresh_expiration(client, args.ops_dataset)
+    # Every dataset, dbt's included: an incremental model is never recreated, so it expires too.
+    refreshed = sum(refresh_expiration(client, d.dataset_id) for d in client.list_datasets())
     summary = {"run_id": run_id, "cycle": target.cycle, "batch": target.batch, "as_of": target.as_of.isoformat(),
                "full_refresh": p.full_refresh, "rows": rows, "expiration_refreshed": refreshed}  # fmt: skip
     print(json.dumps(summary))

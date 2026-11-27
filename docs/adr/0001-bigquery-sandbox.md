@@ -15,7 +15,7 @@ Use the sandbox, and make each limit a design input instead of a surprise:
 | Limit | Design |
 |---|---|
 | No DML | Raw data arrives through load jobs (free and allowed), each replay batch replacing its own partition. The incremental fact tables swap in rebuilt partitions with copy jobs instead of `MERGE` (ADR 0006); the other marts are `CREATE OR REPLACE TABLE ... AS SELECT`. Audit and cost rows are appended with load jobs too. |
-| 60-day expiration | The deploy runs daily. dbt recreates or updates its tables and views; the loader and the cost report push the expiration of raw and ops tables forward with a metadata update, not a rewrite. |
+| 60-day expiration | The deploy runs daily. Every table in every dataset (dbt's incremental models included, which are never recreated) gets its expiration pushed forward with a metadata update once it is less than 30 days away; if the sandbox refuses the extension, as it did on 2026-11-27, the table is renewed by a copy job, which gives it a new creation time. Views are recreated by dbt every run. |
 | Partitions older than 60 days expire | Integer-range partitions on a YYYYMM key instead of date partitions (ADR 0004). |
 | 10 GiB lifetime storage | Raw tables are reloaded only when the source file's SHA-256 changes. The 59 MB geolocation file, which no model uses, is not loaded. The cost report tracks storage against the allowance. |
 | No Cloud Storage | Terraform state stays in Cloud Shell (ADR 0005). |
