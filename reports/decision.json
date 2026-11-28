@@ -1,11 +1,11 @@
 {
-  "as_of": "2018-01-02",
+  "as_of": "2018-01-03",
   "buckets": [
     {
       "delay_bucket_days": -1,
       "delay_bucket": "early",
-      "orders": 39047,
-      "reviewed_orders": 38784,
+      "orders": 39083,
+      "reviewed_orders": 38785,
       "avg_review_score": 4.29,
       "one_star_share": 0.0637
     },
@@ -44,15 +44,15 @@
     {
       "delay_bucket_days": 4,
       "delay_bucket": "4 days late",
-      "orders": 132,
-      "reviewed_orders": 125,
-      "avg_review_score": 2.54,
-      "one_star_share": 0.472
+      "orders": 134,
+      "reviewed_orders": 127,
+      "avg_review_score": 2.55,
+      "one_star_share": 0.4724
     },
     {
       "delay_bucket_days": 5,
       "delay_bucket": "5 days late",
-      "orders": 125,
+      "orders": 126,
       "reviewed_orders": 122,
       "avg_review_score": 2.43,
       "one_star_share": 0.5
@@ -60,10 +60,10 @@
     {
       "delay_bucket_days": 6,
       "delay_bucket": "6 days late",
-      "orders": 114,
-      "reviewed_orders": 110,
-      "avg_review_score": 1.87,
-      "one_star_share": 0.6636
+      "orders": 115,
+      "reviewed_orders": 111,
+      "avg_review_score": 1.89,
+      "one_star_share": 0.6577
     },
     {
       "delay_bucket_days": 7,
@@ -92,10 +92,10 @@
     {
       "delay_bucket_days": 10,
       "delay_bucket": "10 or more days late",
-      "orders": 496,
-      "reviewed_orders": 472,
-      "avg_review_score": 1.92,
-      "one_star_share": 0.6398
+      "orders": 500,
+      "reviewed_orders": 476,
+      "avg_review_score": 1.91,
+      "one_star_share": 0.6429
     }
   ],
   "months": [
@@ -153,11 +153,11 @@
     },
     {
       "purchase_month_key": 201711,
-      "late_rate": 0.0874
+      "late_rate": 0.088
     },
     {
       "purchase_month_key": 201712,
-      "late_rate": 0.0054
+      "late_rate": 0.0062
     },
     {
       "purchase_month_key": 201801,
